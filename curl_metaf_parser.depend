@@ -1,0 +1,58 @@
+# depslib dependency file v1.0
+1621144533 source:c:\users\barracuda\programming\c++\curl_metaf_parser\main.cpp
+	"METAF.hpp"
+	<iostream>
+	<cstring>
+	<sstream>
+	"curl/curl.h"
+
+1621142142 c:\users\barracuda\programming\c++\curl_metaf_parser\metaf.hpp
+	<string>
+	<vector>
+	<variant>
+	<optional>
+	<regex>
+	<cmath>
+
+1618204474 c:\users\barracuda\programming\c++\curl_metaf_parser\curl\curl.h
+	"curlver.h"
+	"system.h"
+	<stdio.h>
+	<limits.h>
+	<osreldate.h>
+	<sys/types.h>
+	<time.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<sys/select.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<support/SupportDefs.h>
+	"easy.h"
+	"multi.h"
+	"urlapi.h"
+	"options.h"
+	"typecheck-gcc.h"
+
+1618369046 c:\users\barracuda\programming\c++\curl_metaf_parser\curl\curlver.h
+
+1618201874 c:\users\barracuda\programming\c++\curl_metaf_parser\curl\system.h
+	<winsock2.h>
+	<windows.h>
+	<ws2tcpip.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<sys/poll.h>
+
+1618201874 c:\users\barracuda\programming\c++\curl_metaf_parser\curl\easy.h
+
+1618201874 c:\users\barracuda\programming\c++\curl_metaf_parser\curl\multi.h
+	"curl.h"
+
+1618201874 c:\users\barracuda\programming\c++\curl_metaf_parser\curl\urlapi.h
+	"curl.h"
+
+1618201874 c:\users\barracuda\programming\c++\curl_metaf_parser\curl\options.h
+
+1618203848 c:\users\barracuda\programming\c++\curl_metaf_parser\curl\typecheck-gcc.h
+
