@@ -7,12 +7,12 @@
 //                                                                            ver. 0.9 beta   //
 // ========================================================================================== //
 
-
 #include "METAF.hpp"
 #include <iostream>
 #include <cstring>
 #include <sstream>
 #include "curl/curl.h"
+
 
 #pragma comment(lib,"curllib-bcb.lib")
 
@@ -419,80 +419,66 @@ int main(void)
 
 // === METAR section =====================================================================================
 
-        int i = 1;
-        int j = 1;
-        char str_csv_metar1[8000];
-        char str_txt_metar1[220];
-        char str_csv_metar2[8000];
-        char str_txt_metar2[220];
+    int i = 0;
+    char str_csv_metar1[8000];
+    char str_txt_metar1[220];
+    string str_txt_metar;
 
-        FILE* fp_csv_m1 = fopen("files/metars.csv", "r");  // Path has to be changed for release ver.
-        FILE* fp_txt_m1 = fopen("files/metaf.txt", "a");  // Path has to be changed for release ver.
-
-        if (fp_csv_m1 != NULL) {
+    FILE* fp_csv_m1 = fopen("files/metars.csv", "r");   // Path has to be changed for release ver.
+    FILE* fp_txt_m1 = fopen("files/metaf.txt", "w");    // Path has to be changed for release ver.
+    if (fp_csv_m1 != NULL) {
             while ((str_csv_metar1[i] = getc(fp_csv_m1)) != EOF) i++;
             str_csv_metar1[i] = '\0';
-                for (i=663; i < 1500; i++) {
-                    if (str_csv_metar1[i] != ',') {
-                        str_txt_metar1[j] = str_csv_metar1[i];
-                        j++;
-                    }
-                    if (str_csv_metar1[i] == ',') {
-                        break;
-                    }
-                }
+    }
+    // cout << str_csv_metar1;
+    string str_m = string(str_csv_metar1);
+    int a;
+    i = str_m.find(",UKDD,");
+    // cout << i;
+    string beginStr_m = str_m.substr(0, i);
+    // cout << beginStr_m << endl;
+    i = beginStr_m.find("UKDD");
+    string endStr_m = str_m.substr(i, beginStr_m.length()-i);
+    cout << "METAR " << endStr_m << endl;
+    if(endStr_m.empty())
+    {
+        cout<<"app"<<endl;
+    }
 
-            str_txt_metar1[0] = 'M';
-            str_txt_metar1[1] = 'E';
-            str_txt_metar1[2] = 'T';
-            str_txt_metar1[3] = 'A';
-            str_txt_metar1[4] = 'R';
-            str_txt_metar1[5] = ' ';
-            str_txt_metar1[j] = '\n';
-            cout << str_txt_metar1 << endl;
-
-            fputs(str_txt_metar1, fp_txt_m1);
-        }
-
-     fclose(fp_csv_m1);
+    cout << str_txt_metar1 << endl;
+    fputs(endStr_m.c_str(), fp_txt_m1);
+    fputs("\n", fp_txt_m1);
 
 
 //== TAF section ========================================================================================
 
-    i = 1;
-    j = 1;
-    char str_csv_taf1[8000];
+    i = 0;
+    char str_csv_taf1[10000];
     char str_txt_taf1[400];
-    char str_csv_taf2[8000];
-    char str_txt_taf2[400];
+    string str_txt_taf;
 
     FILE* fp_csv_t1 = fopen("files/tafs.csv", "r");  // Path has to be changed for release ver.
 
     if (fp_csv_t1 != NULL) {
         while ((str_csv_taf1[i] = getc(fp_csv_t1)) != EOF) i++;
         str_csv_taf1[i] = '\0';
-            for (i=4784; i < 7000; i++) {
-                if (str_csv_taf1[i] != ',') {
-                    str_txt_taf1[j] = str_csv_taf1[i];
-                    j++;
-                }
-                if (str_csv_taf1[i] == ',') {
-                    break;
-                }
-            }
-
-        str_txt_taf1[0] = 'T';
-        str_txt_taf1[1] = 'A';
-        str_txt_taf1[2] = 'F';
-        str_txt_taf1[3] = ' ';
-        str_txt_taf1[j] = '\n';
-        cout << str_txt_taf1 << endl;
-
-        fputs(str_txt_taf1, fp_txt_m1);
     }
 
-    fclose(fp_csv_t1);
-    fclose(fp_txt_m1);
+    // cout << str_csv_taf1;
+    string str_t = string(str_csv_taf1);
+    //cout << str_t;
+    a =0;
+    i = str_t.find(",UKDD,");
+    // cout << i;
+    string beginStr_t = str_t.substr(0, i);
+    //cout << beginStr_t << endl;
+    i = beginStr_t.find("TAF");
+    // cout << i;
+    string endStr_t = str_t.substr(i, beginStr_t.length()-i);
+    cout << endStr_t << endl;
+
+    fputs(endStr_t.c_str(), fp_txt_m1);
+    fputs("\n", fp_txt_m1);
 
 
 // !           !            !                                 !                   !                      !
@@ -501,8 +487,12 @@ int main(void)
 
 //== Parsing section =====================================================================================
 
-    cout << "Parsing report: " << str_txt_metar1 << "\n";
-    const auto result1 = Parser::parse(str_txt_metar1);
+
+    cout << "Parsing report: " << endStr_t << endl;
+
+    system("pause");
+
+    const auto result1 = Parser::parse(endStr_t.c_str());
     cout << "Parse error: ";
     cout << errorMessage(result1.reportMetadata.error) << "\n";
     cout << "Detected report type: ";
@@ -514,18 +504,22 @@ int main(void)
     }
     system("pause");
 
-    cout << "Parsing report: " << str_txt_taf1 << "\n";
-    const auto result2 = Parser::parse(str_txt_taf1);
+    cout << "Parsing report: " << endStr_t.c_str() << "\n";
+    const auto result2 = Parser::parse(endStr_t.c_str());
     cout << "Parse error: ";
     cout << errorMessage(result2.reportMetadata.error) << "\n";
     cout << "Detected report type: ";
     cout << reportTypeMessage(result2.reportMetadata.type) << "\n";
     cout << result2.groups.size() << " groups parsed\n";
-    MyVisitor visitor3;
+    MyVisitor visitor2;
     for (const auto groupInfo : result2.groups) {
-        cout << visitor3.visit(groupInfo) << "\n";
+        cout << visitor2.visit(groupInfo) << "\n";
     }
     system("pause");
+
+    fclose(fp_txt_m1);
+    fclose(fp_csv_m1);
+    fclose(fp_csv_t1);
 
     return 0;
 }

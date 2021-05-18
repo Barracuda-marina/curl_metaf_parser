@@ -60,7 +60,7 @@ class VicinityGroup;
 class MiscGroup;
 class UnknownGroup;
 
-using Group = variant<
+using Group = std::variant<
     KeywordGroup,
     LocationGroup,
     ReportTimeGroup,
@@ -110,7 +110,7 @@ public:
     }
 
     Runway() = default;
-    static inline optional<Runway> fromString(const string & s, bool enableRwy = false);
+    static inline std::optional<Runway> fromString(const std::string & s, bool enableRwy = false);
     static Runway makeAllRunways() {
         Runway rw;
         rw.rNumber = allRunwaysNumber;
@@ -118,7 +118,7 @@ public:
     }
 
 private:
-    static inline optional<Designator> designatorFromChar(char c);
+    static inline std::optional<Designator> designatorFromChar(char c);
 
     unsigned int rNumber = 0;
     Designator rDesignator = Designator::NONE;
@@ -136,7 +136,7 @@ public:
         unsigned int month;
         unsigned int day;
     };
-    optional<unsigned int> day() const { return dayValue; }
+    std::optional<unsigned int> day() const { return dayValue; }
     unsigned int hour() const { return hourValue; }
     unsigned int minute() const { return minuteValue; }
     inline bool isValid() const;
@@ -147,11 +147,11 @@ public:
     MetafTime() = default;
     MetafTime(unsigned int hour, unsigned int minute) :
         hourValue(hour), minuteValue(minute) {}
-    static inline optional<MetafTime> fromStringDDHHMM(const string & s);
-    static inline optional<MetafTime> fromStringDDHH(const string & s);
+    static inline std::optional<MetafTime> fromStringDDHHMM(const std::string & s);
+    static inline std::optional<MetafTime> fromStringDDHH(const std::string & s);
 
 private:
-    optional<unsigned int> dayValue;
+    std::optional<unsigned int> dayValue;
     unsigned int hourValue = 0;
     unsigned int minuteValue = 0;
 
@@ -169,17 +169,17 @@ public:
         C,
         F,
     };
-    optional<float> temperature() const {
+    std::optional<float> temperature() const {
         if (!tempValue.has_value()) return tempValue;
         return (precise ?
             (*tempValue * preciseValuePrecision) : *tempValue);
     }
     Unit unit() const { return tempUnit; }
-    optional<float> inline toUnit(Unit unit) const;
+    std::optional<float> inline toUnit(Unit unit) const;
     bool isFreezing() const { return freezing; }
     bool isPrecise() const { return precise; }
     bool isReported() const { return tempValue.has_value(); }
-    inline static optional<float> relativeHumidity(
+    inline static std::optional<float> relativeHumidity(
         const Temperature & airTemperature,
         const Temperature & dewPoint);
     inline static Temperature heatIndex(const Temperature & airTemperature,
@@ -190,12 +190,12 @@ public:
         const Speed & windSpeed);
 
     Temperature () = default;
-    static inline optional<Temperature> fromString(const string & s);
-    static inline optional<Temperature> fromRemarkString(const string & s);
+    static inline std::optional<Temperature> fromString(const std::string & s);
+    static inline std::optional<Temperature> fromRemarkString(const std::string & s);
 private:
     inline Temperature (float value);
 
-    optional<int> tempValue;
+    std::optional<int> tempValue;
     bool freezing = false;
     static const Unit tempUnit = Unit::C;
     bool precise = false; //True = tenth of degrees C, false = degrees C
@@ -210,23 +210,23 @@ public:
         KILOMETERS_PER_HOUR,
         MILES_PER_HOUR
     };
-    optional<unsigned int> speed() const { return speedValue; }
+    std::optional<unsigned int> speed() const { return speedValue; }
     Unit unit() const { return speedUnit; }
-    optional<float> inline toUnit(Unit unit) const;
+    std::optional<float> inline toUnit(Unit unit) const;
     bool isReported() const { return speedValue.has_value(); }
 
     Speed() = default;
-    static inline optional<Speed> fromString(const string & s, Unit unit);
-    static inline optional<Unit> unitFromString(const string & s);
+    static inline std::optional<Speed> fromString(const std::string & s, Unit unit);
+    static inline std::optional<Unit> unitFromString(const std::string & s);
 
 private:
-    optional<unsigned int> speedValue;
+    std::optional<unsigned int> speedValue;
     Unit speedUnit = Unit::KNOTS;
 
-    static inline optional<float> knotsToUnit(float valueKnots, Unit otherUnit);
-    static inline optional<float> mpsToUnit(float valueMps, Unit otherUnit);
-    static inline optional<float> kmhToUnit(float valueKmh, Unit otherUnit);
-    static inline optional<float> mphToUnit(float valueMph, Unit otherUnit);
+    static inline std::optional<float> knotsToUnit(float valueKnots, Unit otherUnit);
+    static inline std::optional<float> mpsToUnit(float valueMps, Unit otherUnit);
+    static inline std::optional<float> kmhToUnit(float valueKmh, Unit otherUnit);
+    static inline std::optional<float> mphToUnit(float valueMph, Unit otherUnit);
 };
 
 class Distance {
@@ -256,7 +256,7 @@ public:
         F_3_4,
         F_7_8
     };
-    inline optional<float> distance() const;
+    inline std::optional<float> distance() const;
     Unit unit() const { return distUnit; }
     Modifier modifier() const { return distModifier; }
     bool isValue() const { return (dist.has_value()); }
@@ -265,8 +265,8 @@ public:
             modifier() == Modifier::DISTANT ||
             modifier() == Modifier::VICINITY);
     }
-    inline optional<float> toUnit(Unit unit) const;
-    inline optional<pair<unsigned int, MilesFraction>> miles() const;
+    inline std::optional<float> toUnit(Unit unit) const;
+    inline std::optional<std::pair<unsigned int, MilesFraction>> miles() const;
 
     bool isValid() const { return true; }
 
@@ -279,22 +279,22 @@ public:
         distUnit = Unit::STATUTE_MILES;
     }
     Distance(Unit u) : distUnit(u) {}
-    static inline optional<Distance> fromIntegerAndFraction(const Distance & integer,
+    static inline std::optional<Distance> fromIntegerAndFraction(const Distance & integer,
         const Distance & fraction);
-    static inline optional<Distance> fromMeterString(const string & s);
-    static inline optional<Distance> fromMileString(const string & s,
+    static inline std::optional<Distance> fromMeterString(const std::string & s);
+    static inline std::optional<Distance> fromMileString(const std::string & s,
         bool remarkFormat = false);
-    static inline optional<Distance> fromHeightString(const string & s);
-    static inline optional<Distance> fromRvrString(const string & s, bool unitFeet);
-    static inline optional< pair<Distance,Distance> > fromLayerString(
-        const string & s);
+    static inline std::optional<Distance> fromHeightString(const std::string & s);
+    static inline std::optional<Distance> fromRvrString(const std::string & s, bool unitFeet);
+    static inline std::optional< std::pair<Distance,Distance> > fromLayerString(
+        const std::string & s);
     static inline Distance cavokVisibility(bool unitMiles = false);
-    static inline optional<Distance> fromKmString(const string & s);
+    static inline std::optional<Distance> fromKmString(const std::string & s);
     static inline Distance makeDistant();
     static inline Distance makeVicinity();
 private:
     Modifier distModifier = Modifier::NONE;
-    optional<unsigned int> dist;
+    std::optional<unsigned int> dist;
     Unit distUnit = Unit::METERS;
 
     // If distance unit is statute mile, d stores value in 1/10000ths of mile
@@ -309,10 +309,10 @@ private:
     // Icing or turbulence layer depth is given in 1000s of feet
     static const unsigned int layerDepthFactor = 1000;
 
-    static inline optional<Modifier> modifierFromChar(char c);
-    static inline optional<float> metersToUnit(float value, Unit unit);
-    static inline optional<float> milesToUnit(float value, Unit unit);
-    static inline optional<float> feetToUnit(float value, Unit unit);
+    static inline std::optional<Modifier> modifierFromChar(char c);
+    static inline std::optional<float> metersToUnit(float value, Unit unit);
+    static inline std::optional<float> milesToUnit(float value, Unit unit);
+    static inline std::optional<float> feetToUnit(float value, Unit unit);
 };
 
 class Direction {
@@ -349,15 +349,15 @@ public:
     };
     Type type() const { return dirType; }
     inline Cardinal cardinal(bool trueDirections = false) const;
-    optional<unsigned int> degrees() const {
-        if (!isValue())	return optional<unsigned int>();
+    std::optional<unsigned int> degrees() const {
+        if (!isValue())	return std::optional<unsigned int>();
         return dirDegrees;
     }
     bool isValue() const {
         return (dirType == Type::VALUE_DEGREES || dirType == Type::VALUE_CARDINAL);
     }
     bool isReported() const { return (dirType != Type::NOT_REPORTED); }
-    static inline vector<Direction> sectorCardinalDirToVector(
+    static inline std::vector<Direction> sectorCardinalDirToVector(
         const Direction & dirFrom,
         const Direction & dirTo);
     bool isValid() const {
@@ -367,12 +367,12 @@ public:
     static inline Cardinal rotateOctantClockwise(Cardinal cardinal);
 
     Direction() = default;
-    static inline optional<Direction> fromCardinalString(const string & s,
+    static inline std::optional<Direction> fromCardinalString(const std::string & s,
         bool enableOhdAlqds = false,
         bool enableUnknown = false);
-    static inline optional<Direction> fromDegreesString(const string & s);
-    static inline optional<pair<Direction, Direction>> fromSectorString(
-        const string & s);
+    static inline std::optional<Direction> fromDegreesString(const std::string & s);
+    static inline std::optional<std::pair<Direction, Direction>> fromSectorString(
+        const std::string & s);
 
 private:
     unsigned int dirDegrees = 0;
@@ -399,20 +399,20 @@ public:
         INCHES_HG,
         MM_HG
     };
-    optional<float> pressure() const { return pressureValue; }
+    std::optional<float> pressure() const { return pressureValue; }
     Unit unit() const { return pressureUnit; }
-    inline optional<float> toUnit(Unit unit) const;
+    inline std::optional<float> toUnit(Unit unit) const;
     bool isReported() const { return pressureValue.has_value(); }
 
     Pressure() = default;
-    static inline optional<Pressure> fromString(const string & s);
-    static inline optional<Pressure> fromForecastString(const string & s);
-    static inline optional<Pressure> fromSlpString(const string & s);
-    static inline optional<Pressure> fromQfeString(const string & s);
-    static inline optional<Pressure> fromTendencyString(const string & s);
+    static inline std::optional<Pressure> fromString(const std::string & s);
+    static inline std::optional<Pressure> fromForecastString(const std::string & s);
+    static inline std::optional<Pressure> fromSlpString(const std::string & s);
+    static inline std::optional<Pressure> fromQfeString(const std::string & s);
+    static inline std::optional<Pressure> fromTendencyString(const std::string & s);
 
 private:
-    optional<float> pressureValue;
+    std::optional<float> pressureValue;
     Unit pressureUnit = Unit::HECTOPASCAL;
 
     static inline const float inHgDecimalPointShift = 0.01;
@@ -425,23 +425,23 @@ public:
         MM,
         INCHES,
     };
-    optional<float> amount() const { return precipValue; }
+    std::optional<float> amount() const { return precipValue; }
     Unit unit() const { return precipUnit; }
-    inline optional<float> toUnit(Unit unit) const;
+    inline std::optional<float> toUnit(Unit unit) const;
     bool isReported() const { return precipValue.has_value(); }
 
     Precipitation() = default;
-    static inline optional<Precipitation> fromRainfallString(const string & s);
-    static inline optional<Precipitation> fromRunwayDeposits(const string & s);
-    static inline optional<Precipitation> fromRemarkString(const string & s,
+    static inline std::optional<Precipitation> fromRainfallString(const std::string & s);
+    static inline std::optional<Precipitation> fromRunwayDeposits(const std::string & s);
+    static inline std::optional<Precipitation> fromRemarkString(const std::string & s,
         float factor = 1,
         Unit unit = Unit::INCHES,
         bool allowNotReported = false);
-    static inline optional<pair<Precipitation, Precipitation> >
-        fromSnincrString(const string & s);
+    static inline std::optional<std::pair<Precipitation, Precipitation> >
+        fromSnincrString(const std::string & s);
 
 private:
-    optional<float> precipValue;
+    std::optional<float> precipValue;
     Unit precipUnit = Unit::MM;
 private:
     // Special value for runway deposits depth, see Table 1079 in Manual on Codes (WMO No. 306).
@@ -475,9 +475,9 @@ public:
         GOOD,			// Friction coef >0.39
     };
     Type type() const { return sfType; }
-    optional<float> coefficient() const {
+    std::optional<float> coefficient() const {
         if (sfType == Type::NOT_REPORTED ||
-            sfType == Type::UNRELIABLE) return optional<float>();
+            sfType == Type::UNRELIABLE) return std::optional<float>();
         return (sfCoefficient * coefficientDecimalPointShift);
     }
     inline BrakingAction brakingAction() const;
@@ -485,7 +485,7 @@ public:
     bool isUnreliable() const { return (type() == Type::UNRELIABLE); }
 
     SurfaceFriction() = default;
-    static inline optional<SurfaceFriction> fromString(const string & s);
+    static inline std::optional<SurfaceFriction> fromString(const std::string & s);
 
 private:
     Type sfType = Type::NOT_REPORTED;
@@ -538,23 +538,23 @@ public:
     Type type() const { return whType; }
     inline StateOfSurface stateOfSurface() const;
     Unit unit() const { return whUnit; }
-    optional<float> waveHeight() const {
-        if (!whValue.has_value()) return optional<float>();
+    std::optional<float> waveHeight() const {
+        if (!whValue.has_value()) return std::optional<float>();
         return (*whValue * waveHeightDecimalPointShift);
     }
     bool isReported() const { return whValue.has_value(); }
-    inline optional<float> toUnit(Unit unit) const;
+    inline std::optional<float> toUnit(Unit unit) const;
 
     WaveHeight() = default;
-    static inline optional<WaveHeight> fromString(const string & s);
+    static inline std::optional<WaveHeight> fromString(const std::string & s);
 
 private:
     Type whType = Type::STATE_OF_SURFACE;
-    optional<unsigned int> whValue; //in decimeters, muliply by 0.1 to get value in meters
+    std::optional<unsigned int> whValue; //in decimeters, muliply by 0.1 to get value in meters
     static const inline auto waveHeightDecimalPointShift = 0.1;
     static const Unit whUnit = Unit::METERS;
 private:
-    static inline optional<unsigned int> waveHeightFromStateOfSurfaceChar(char c);
+    static inline std::optional<unsigned int> waveHeightFromStateOfSurfaceChar(char c);
 private:
     //Values below are in decimeters, muliply by 0.1 to get value in meters
     static const inline auto maxWaveHeightCalmGlassy = 0;
@@ -624,16 +624,16 @@ public:
 
     Qualifier qualifier() const { return q; }
     Descriptor descriptor() const { return d; }
-    inline vector<Weather> weather() const;
+    inline std::vector<Weather> weather() const;
     Event event() const { return ev; }
-    optional<MetafTime> time() const { return tm; }
+    std::optional<MetafTime> time() const { return tm; }
     inline bool isValid() const;
 
     WeatherPhenomena() = default;
-    static inline optional <WeatherPhenomena> fromString(const string & s,
+    static inline std::optional <WeatherPhenomena> fromString(const std::string & s,
         bool enableQualifiers = false);
-    static inline optional <WeatherPhenomena> fromWeatherBeginEndString(
-        const string & s,
+    static inline std::optional <WeatherPhenomena> fromWeatherBeginEndString(
+        const std::string & s,
         const MetafTime & reportTime,
         const WeatherPhenomena & previous);
     static WeatherPhenomena notReported(bool recent) {
@@ -648,7 +648,7 @@ private:
     size_t wsz = 0;
     Weather w[wSize] = {Weather::NOT_REPORTED, Weather::NOT_REPORTED, Weather::NOT_REPORTED};
     Event ev = Event::NONE;
-    optional<MetafTime> tm;
+    std::optional<MetafTime> tm;
 
     WeatherPhenomena(Weather wthr1,
         Weather wthr2,
@@ -707,15 +707,15 @@ public:
 
     CloudType() = default;
     CloudType(Type t, Distance h, unsigned int o) : tp(t), ht(h), okt(o) {}
-    static inline optional<CloudType> fromString(const string & s);
-    static inline optional<CloudType> fromStringObscuration(const string & s);
+    static inline std::optional<CloudType> fromString(const std::string & s);
+    static inline std::optional<CloudType> fromStringObscuration(const std::string & s);
 private:
     Type tp = Type::NOT_REPORTED;
     Distance ht;
     unsigned int okt = 0u;
 
-    static inline Type cloudTypeFromString(const string & s);
-    static inline Type cloudTypeOrObscurationFromString(const string & s);
+    static inline Type cloudTypeFromString(const std::string & s);
+    static inline Type cloudTypeOrObscurationFromString(const std::string & s);
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -754,8 +754,8 @@ enum class ReportError {
 struct ReportMetadata {
     ReportType type = ReportType::UNKNOWN;
     ReportError error = ReportError::NONE;
-    optional<MetafTime> reportTime;
-    string icaoLocation;
+    std::optional<MetafTime> reportTime;
+    std::string icaoLocation;
     bool isSpeci = false;
     bool isNospeci = false;
     bool isAutomated = false;
@@ -767,9 +767,9 @@ struct ReportMetadata {
     bool isCancelled = false;
     bool isAmended = false;
     bool isCorrectional = false;
-    optional<unsigned int> correctionNumber = 0;
+    std::optional<unsigned int> correctionNumber = 0;
     bool maintenanceIndicator = false;
-    optional<MetafTime> timeSpanFrom, timeSpanUntil;
+    std::optional<MetafTime> timeSpanFrom, timeSpanUntil;
 };
 
 static const inline ReportMetadata missingMetadata;
@@ -841,10 +841,10 @@ public:
     bool isValid() const { return (true); }
 
     KeywordGroup() = default;
-    static inline optional<KeywordGroup> parse(const string & group,
+    static inline std::optional<KeywordGroup> parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -855,14 +855,14 @@ private:
 
 class LocationGroup {
 public:
-    string toString() const {return string(location);}
+    std::string toString() const {return std::string(location);}
     inline bool isValid() const { return true; }
 
     LocationGroup() = default;
-    static inline optional<LocationGroup> parse(const string & group,
+    static inline std::optional<LocationGroup> parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -877,11 +877,11 @@ public:
     bool isValid() const { return (t.isValid() && t.day().has_value()); }
 
     ReportTimeGroup() = default;
-    static inline optional<ReportTimeGroup> parse(
-        const string & group,
+    static inline std::optional<ReportTimeGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -909,9 +909,9 @@ public:
     };
     Type type() const { return t; }
     Probability probability() const { return prob; }
-    optional<MetafTime> timeFrom() const { return tFrom; }
-    optional<MetafTime> timeUntil() const { return tTill; }
-    optional<MetafTime> timeAt() const { return tAt; }
+    std::optional<MetafTime> timeFrom() const { return tFrom; }
+    std::optional<MetafTime> timeUntil() const { return tTill; }
+    std::optional<MetafTime> timeAt() const { return tAt; }
     bool isValid() const {
         if (type() == Type::PROB) return false; //PROBxx without time span, BECMG, TEMPO, INTER
         if (tFrom.has_value() && !tFrom->isValid()) return false;
@@ -922,11 +922,11 @@ public:
     inline bool isTimeSpanGroup() const;
 
     TrendGroup() = default;
-    static inline optional<TrendGroup> parse(
-        const string & group,
+    static inline std::optional<TrendGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -934,10 +934,10 @@ private:
     TrendGroup(Type type) : t(type) {}
     TrendGroup(Probability p) : t(Type::PROB), prob(p) {}
 
-    static inline optional<TrendGroup> fromTimeSpan(const string & s);
-    static inline optional<TrendGroup> fromTimeSpanHHMM(const string & s);
-    static inline optional<TrendGroup> fromFm(const string & s);
-    static inline optional<TrendGroup> fromTrendTime(const string & s);
+    static inline std::optional<TrendGroup> fromTimeSpan(const std::string & s);
+    static inline std::optional<TrendGroup> fromTimeSpanHHMM(const std::string & s);
+    static inline std::optional<TrendGroup> fromFm(const std::string & s);
+    static inline std::optional<TrendGroup> fromTrendTime(const std::string & s);
 
     inline bool combineProbAndTrendTypeGroups(const TrendGroup & nextTrendGroup);
     inline bool combineTrendTypeAndTimeGroup(const TrendGroup & nextTrendGroup);
@@ -954,9 +954,9 @@ private:
     Type t = Type::NOSIG;
     Probability prob = Probability::NONE;
     bool isTafTimeSpanGroup = false;
-    optional<MetafTime> tFrom; // Time span beginning.
-    optional<MetafTime> tTill;	// Time span end time.
-    optional<MetafTime> tAt;	// Precise time.
+    std::optional<MetafTime> tFrom; // Time span beginning.
+    std::optional<MetafTime> tTill;	// Time span end time.
+    std::optional<MetafTime> tAt;	// Precise time.
 };
 
 class WindGroup {
@@ -981,16 +981,16 @@ public:
     Distance height() const { return wShHeight; }
     Direction varSectorBegin() const { return vsecBegin; }
     Direction varSectorEnd() const { return vsecEnd; }
-    optional<MetafTime> eventTime() const { return evTime; }
-    optional<Runway> runway() const { return rw; }
+    std::optional<MetafTime> eventTime() const { return evTime; }
+    std::optional<Runway> runway() const { return rw; }
     inline bool isValid() const;
 
     WindGroup() = default;
-    static inline optional<WindGroup> parse(
-        const string & group,
+    static inline std::optional<WindGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 private:
@@ -1004,13 +1004,13 @@ private:
     };
     WindGroup(Type type, IncompleteText incomplete = IncompleteText::NONE) :
         windType(type), incompleteText(incomplete) {}
-    static inline optional<WindGroup> parseVariableSector(
-        const string & group);
-    inline AppendResult appendPeakWind(const string & group,
+    static inline std::optional<WindGroup> parseVariableSector(
+        const std::string & group);
+    inline AppendResult appendPeakWind(const std::string & group,
         const ReportMetadata & reportMetadata);
-    inline AppendResult appendWindShift(const string & group,
+    inline AppendResult appendWindShift(const std::string & group,
         const ReportMetadata & reportMetadata);
-    inline AppendResult appendVariableSector(const string & group);
+    inline AppendResult appendVariableSector(const std::string & group);
 
     Type windType;
     Direction windDir;
@@ -1019,8 +1019,8 @@ private:
     Distance wShHeight;
     Direction vsecBegin;
     Direction vsecEnd;
-    optional<MetafTime> evTime;
-    optional<Runway> rw;
+    std::optional<MetafTime> evTime;
+    std::optional<Runway> rw;
 
     IncompleteText incompleteText = IncompleteText::NONE;
 
@@ -1064,9 +1064,9 @@ public:
         return vis;
     }
     Distance maxVisibility() const { return visMax; }
-    optional<Direction> direction() const { return dir; }
-    optional<Runway> runway() const { return rw; }
-    vector<Direction> sectorDirections() const {
+    std::optional<Direction> direction() const { return dir; }
+    std::optional<Runway> runway() const { return rw; }
+    std::vector<Direction> sectorDirections() const {
         return Direction::sectorCardinalDirToVector(
             dirSecFrom.value_or(Direction()),
             dirSecTo.value_or(Direction()));
@@ -1075,11 +1075,11 @@ public:
     inline bool isValid() const;
 
     VisibilityGroup() = default;
-    inline static optional<VisibilityGroup> parse(
-        const string & group,
+    inline static std::optional<VisibilityGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 private:
@@ -1125,40 +1125,40 @@ private:
         }
     }
 
-    static inline optional<VisibilityGroup> fromIncompleteInteger(const string & group);
-    static inline optional<VisibilityGroup> fromMeters(const string & group);
-    static inline optional<VisibilityGroup> fromRvr(const string & group);
+    static inline std::optional<VisibilityGroup> fromIncompleteInteger(const std::string & group);
+    static inline std::optional<VisibilityGroup> fromMeters(const std::string & group);
+    static inline std::optional<VisibilityGroup> fromRvr(const std::string & group);
 
-    inline bool appendFractionToIncompleteInteger(const string & group,
+    inline bool appendFractionToIncompleteInteger(const std::string & group,
         IncompleteText next = IncompleteText::NONE);
-    inline bool appendDirection(const string & group,
+    inline bool appendDirection(const std::string & group,
         IncompleteText next = IncompleteText::NONE);
-    inline bool appendRunway(const string & group,
+    inline bool appendRunway(const std::string & group,
         IncompleteText next = IncompleteText::NONE);
-    inline bool appendInteger(const string & group,
+    inline bool appendInteger(const std::string & group,
         IncompleteText next = IncompleteText::NONE);
-    inline bool appendFraction(const string & group,
+    inline bool appendFraction(const std::string & group,
         IncompleteText next = IncompleteText::NONE);
-    inline bool appendVariable(const string & group,
+    inline bool appendVariable(const std::string & group,
         IncompleteText nextIfMaxIsInteger = IncompleteText::NONE,
         IncompleteText nextIfMaxIsFraction = IncompleteText::NONE);
-    inline bool appendVariableMaxFraction(const string & group,
+    inline bool appendVariableMaxFraction(const std::string & group,
         IncompleteText next = IncompleteText::NONE);
-    inline bool appendMeters(const string & group,
+    inline bool appendMeters(const std::string & group,
         IncompleteText next = IncompleteText::NONE);
-    inline bool appendVariableMeters(const string & group,
+    inline bool appendVariableMeters(const std::string & group,
         IncompleteText next = IncompleteText::NONE);
 
-    static inline Trend trendFromString(const string & s);
+    static inline Trend trendFromString(const std::string & s);
 
     Type visType = Type::PREVAILING;
     Distance vis;
     Distance visMax;
     Trend rvrTrend = Trend::NONE;
-    optional<Direction> dir;
-    optional<Runway> rw;
-    optional<Direction> dirSecFrom;
-    optional<Direction> dirSecTo;
+    std::optional<Direction> dir;
+    std::optional<Runway> rw;
+    std::optional<Direction> dirSecFrom;
+    std::optional<Direction> dirSecTo;
 
     IncompleteText incompleteText = IncompleteText::NONE;
 };
@@ -1217,9 +1217,9 @@ public:
         if (type() != Type::VERTICAL_VISIBILITY) return heightNotReported;
         return heightOrVertVis;
     }
-    inline optional<CloudType> cloudType() const;
-    optional<Runway> runway() const { return rw; }
-    optional<Direction> direction() const { return dir; }
+    inline std::optional<CloudType> cloudType() const;
+    std::optional<Runway> runway() const { return rw; }
+    std::optional<Direction> direction() const { return dir; }
     bool isValid() const {
         if (rw.has_value() && !rw->isValid()) return false;
         if (dir.has_value() && !dir->isValid()) return false;
@@ -1227,11 +1227,11 @@ public:
     }
 
     CloudGroup () = default;
-    static inline optional<CloudGroup> parse(
-        const string & group,
+    static inline std::optional<CloudGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 private:
@@ -1241,8 +1241,8 @@ private:
     Distance maxHt;
     ConvectiveType convtype = ConvectiveType::NONE;
     WeatherPhenomena w;
-    optional<Runway> rw;
-    optional<Direction> dir;
+    std::optional<Runway> rw;
+    std::optional<Direction> dir;
     CloudType cldTp;
     static const inline auto heightNotReported = Distance(Distance::Unit::FEET);
 
@@ -1260,14 +1260,14 @@ private:
 
     CloudGroup(Type t, IncompleteText it) : tp(t), incompleteText(it) {}
     CloudGroup(Type t, Amount a = Amount::NOT_REPORTED) : tp(t), amnt(a) {}
-    static inline optional<CloudGroup> parseCloudLayerOrVertVis(const string & s);
-    static inline optional<CloudGroup> parseVariableCloudLayer(const string & s);
-    static inline optional<Amount> amountFromString(const string & s);
-    static inline optional<ConvectiveType> convectiveTypeFromString(const string & s);
-    inline AppendResult appendVariableCloudAmount(const string & group);
-    inline AppendResult appendCeiling(const string & group);
-    inline AppendResult appendRunwayOrCardinalDirection(const string & group);
-    inline AppendResult appendObscuration(const string & group);
+    static inline std::optional<CloudGroup> parseCloudLayerOrVertVis(const std::string & s);
+    static inline std::optional<CloudGroup> parseVariableCloudLayer(const std::string & s);
+    static inline std::optional<Amount> amountFromString(const std::string & s);
+    static inline std::optional<ConvectiveType> convectiveTypeFromString(const std::string & s);
+    inline AppendResult appendVariableCloudAmount(const std::string & group);
+    inline AppendResult appendCeiling(const std::string & group);
+    inline AppendResult appendRunwayOrCardinalDirection(const std::string & group);
+    inline AppendResult appendObscuration(const std::string & group);
     static inline unsigned int amountToMaxOkta(Amount a);
     static inline CloudType::Type convectiveTypeToCloudTypeType(ConvectiveType t);
 };
@@ -1285,7 +1285,7 @@ public:
         TS_LTNG_TEMPO_UNAVBL
     };
     Type type() const { return t; }
-    inline vector<WeatherPhenomena> weatherPhenomena() const;
+    inline std::vector<WeatherPhenomena> weatherPhenomena() const;
     bool isValid() const {
         if (incompleteText != IncompleteText::NONE) return false;
         for (auto i=0u; i < wsz; i++)
@@ -1294,11 +1294,11 @@ public:
     }
 
     WeatherGroup() = default;
-    static inline optional<WeatherGroup> parse(
-        const string & group,
+    static inline std::optional<WeatherGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -1322,11 +1322,11 @@ private:
     static inline WeatherGroup notReported();
     static inline WeatherGroup notReportedRecent();
 
-    static inline optional<WeatherPhenomena> parseWeatherWithoutEvent(
-        const string & group,
+    static inline std::optional<WeatherPhenomena> parseWeatherWithoutEvent(
+        const std::string & group,
         ReportPart reportPart);
-    static inline optional<WeatherGroup> parseWeatherEvent(
-        const string & group,
+    static inline std::optional<WeatherGroup> parseWeatherEvent(
+        const std::string & group,
         const MetafTime & reportTime);
 };
 
@@ -1340,17 +1340,17 @@ public:
     Type type() const { return tp; }
     Temperature airTemperature() const { return t; }
     Temperature dewPoint() const { return dp; }
-    optional<float> relativeHumidity() const {
+    std::optional<float> relativeHumidity() const {
         return Temperature::relativeHumidity(airTemperature(), dewPoint());
     }
     inline bool isValid() const;
 
     TemperatureGroup() = default;
-    static inline optional<TemperatureGroup> parse(
-        const string & group,
+    static inline std::optional<TemperatureGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -1377,11 +1377,11 @@ public:
     bool isValid() const { return (!isIncomplete); }
 
     PressureGroup() = default;
-    static inline optional<PressureGroup> parse(
-        const string & group,
+    static inline std::optional<PressureGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -1445,11 +1445,11 @@ public:
     }
 
     RunwayStateGroup() = default;
-    static inline optional<RunwayStateGroup> parse(
-        const string & group,
+    static inline std::optional<RunwayStateGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -1464,8 +1464,8 @@ private:
     RunwayStateGroup(Type t, Runway r, SurfaceFriction s = SurfaceFriction()) :
         rw(r), tp(t), sf(s) {}
 
-    static inline optional<Deposits> depositsFromString(const string & s);
-    static inline optional<Extent> extentFromString(const string & s);
+    static inline std::optional<Deposits> depositsFromString(const std::string & s);
+    static inline std::optional<Extent> extentFromString(const std::string & s);
 };
 
 class SeaSurfaceGroup {
@@ -1475,11 +1475,11 @@ public:
     bool isValid() const { return true; }
 
     SeaSurfaceGroup() = default;
-    static inline optional<SeaSurfaceGroup> parse(
-        const string & group,
+    static inline std::optional<SeaSurfaceGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -1497,36 +1497,36 @@ public:
     };
     Type type() const { return t; }
     Temperature minimum() const { return minTemp; }
-    optional<MetafTime> minimumTime() const { return minTime; }
+    std::optional<MetafTime> minimumTime() const { return minTime; }
     Temperature maximum() const { return maxTemp; }
-    optional<MetafTime> maximumTime() const { return maxTime; }
+    std::optional<MetafTime> maximumTime() const { return maxTime; }
     inline bool isValid() const;
 
     MinMaxTemperatureGroup() = default;
-    static inline optional<MinMaxTemperatureGroup> parse(
-        const string & group,
+    static inline std::optional<MinMaxTemperatureGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 private:
     Type t = Type::FORECAST;
     Temperature minTemp;
     Temperature maxTemp;
-    optional<MetafTime> minTime;
-    optional<MetafTime> maxTime;
+    std::optional<MetafTime> minTime;
+    std::optional<MetafTime> maxTime;
     bool isIncomplete = false;
 
-    static inline optional<MinMaxTemperatureGroup> from6hourly(
-        const string & group);
-    static inline optional<MinMaxTemperatureGroup> from24hourly(
-        const string & group);
-    static inline optional<MinMaxTemperatureGroup> fromForecast(
-        const string & group);
+    static inline std::optional<MinMaxTemperatureGroup> from6hourly(
+        const std::string & group);
+    static inline std::optional<MinMaxTemperatureGroup> from24hourly(
+        const std::string & group);
+    static inline std::optional<MinMaxTemperatureGroup> fromForecast(
+        const std::string & group);
 
-    inline AppendResult append6hourly(const string & group);
-    inline AppendResult appendForecast(const string & group);
+    inline AppendResult append6hourly(const std::string & group);
+    inline AppendResult appendForecast(const std::string & group);
 };
 
 class PrecipitationGroup {
@@ -1557,10 +1557,10 @@ public:
     bool isValid() const { return !isIncomplete; }
 
     PrecipitationGroup() = default;
-    static inline optional<PrecipitationGroup> parse(const string & group,
+    static inline std::optional<PrecipitationGroup> parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 private:
@@ -1605,10 +1605,10 @@ public:
     bool isValid() const { return true; }
 
     LayerForecastGroup() = default;
-    static inline optional<LayerForecastGroup> parse(const string & group,
+    static inline std::optional<LayerForecastGroup> parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -1617,7 +1617,7 @@ private:
     Distance layerBaseHeight;
     Distance layerTopHeight;
 
-    static inline optional<Type> typeFromStr(const string & s);
+    static inline std::optional<Type> typeFromStr(const std::string & s);
 };
 
 class PressureTendencyGroup {
@@ -1650,11 +1650,11 @@ public:
     bool isValid() const { return true; }
 
     PressureTendencyGroup() = default;
-    static inline optional<PressureTendencyGroup> parse(
-        const string & group,
+    static inline std::optional<PressureTendencyGroup> parse(
+        const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -1662,19 +1662,19 @@ private:
     Type tendencyType;
     Pressure pressureDifference;
 
-    static inline optional<Type> typeFromChar(char type);
+    static inline std::optional<Type> typeFromChar(char type);
 };
 
 class CloudTypesGroup {
 public:
-    inline vector<CloudType> cloudTypes() const;
+    inline std::vector<CloudType> cloudTypes() const;
     inline bool isValid() const;
 
     CloudTypesGroup() = default;
-    static inline optional<CloudTypesGroup> parse(const string & group,
+    static inline std::optional<CloudTypesGroup> parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -1731,10 +1731,10 @@ public:
     inline bool isValid() const;
 
     LowMidHighCloudGroup() = default;
-    static inline optional<LowMidHighCloudGroup> parse(const string & group,
+    static inline std::optional<LowMidHighCloudGroup> parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -1763,14 +1763,14 @@ public:
     bool isCloudCloud() const { return typeCloudCloud; }
     bool isCloudAir() const { return typeCloudAir; }
     bool isUnknownType() const { return typeUnknown; }
-    inline vector<Direction> directions() const;
+    inline std::vector<Direction> directions() const;
     inline bool isValid() const { return !typeUnknown; }
 
     LightningGroup() = default;
-    static inline optional<LightningGroup> parse(const string & group,
+    static inline std::optional<LightningGroup> parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    inline AppendResult append(const string & group,
+    inline AppendResult append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -1782,18 +1782,18 @@ private:
     bool typeCloudCloud = false;
     bool typeCloudAir = false;
     bool typeUnknown = false;
-    optional<Direction> dir1from;
-    optional<Direction> dir1to;
-    optional<Direction> dir2from;
-    optional<Direction> dir2to;
+    std::optional<Direction> dir1from;
+    std::optional<Direction> dir1to;
+    std::optional<Direction> dir2from;
+    std::optional<Direction> dir2to;
     bool incomplete = false;
 
     LightningGroup(Frequency frequency) {
         freq = frequency;
         incomplete = true;
     }
-    static inline optional<LightningGroup> fromLtgGroup(
-        const string & group);
+    static inline std::optional<LightningGroup> fromLtgGroup(
+        const std::string & group);
     bool isOmittedDir1() const { return (!dir1from.has_value() && !dir1to.has_value()); }
     bool isOmittedDir2() const { return (!dir2from.has_value() && !dir2to.has_value()); }
 };
@@ -1824,26 +1824,26 @@ public:
     };
     Type type() const { return t; }
     Distance distance() const { return dist; }
-    inline vector<Direction> directions() const;
+    inline std::vector<Direction> directions() const;
     inline Direction movingDirection() const { return movDir; }
     inline bool isValid() const {
         return (incompleteType == IncompleteType::NONE);
     }
 
-    static inline optional<VicinityGroup> parse(const string & group,
+    static inline std::optional<VicinityGroup> parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    inline AppendResult append(const string & group,
+    inline AppendResult append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
 private:
     Type t;
     Distance dist;
-    optional<Direction> dir1from;
-    optional<Direction> dir1to;
-    optional<Direction> dir2from;
-    optional<Direction> dir2to;
+    std::optional<Direction> dir1from;
+    std::optional<Direction> dir1to;
+    std::optional<Direction> dir2from;
+    std::optional<Direction> dir2to;
     Direction movDir;
 
     enum class IncompleteType {
@@ -1874,9 +1874,9 @@ private:
         if (type() == Type::ROTOR_CLOUD) incompleteType = IncompleteType::EXPECT_CLD;
     }
 
-    inline bool appendDir1(const string & str);
-    inline bool appendDir2(const string & str);
-    inline bool appendDistance(const string & str);
+    inline bool appendDir1(const std::string & str);
+    inline bool appendDir2(const std::string & str);
+    inline bool appendDistance(const std::string & str);
 };
 
 class MiscGroup {
@@ -1903,14 +1903,14 @@ public:
         FROIN
     };
     Type type() const { return groupType; }
-    optional<float> data() const { return groupData; }
+    std::optional<float> data() const { return groupData; }
     inline bool isValid() const;
 
     MiscGroup() = default;
-    static inline optional<MiscGroup> parse(const string & group,
+    static inline std::optional<MiscGroup> parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata);
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata);
 
@@ -1924,25 +1924,25 @@ private:
     };
 
     Type groupType;
-    optional<float> groupData;
+    std::optional<float> groupData;
     IncompleteText incompleteText = IncompleteText::NONE;
 
-    inline static optional<Type> parseColourCode(const string & group);
-    inline bool appendHailstoneFraction (const string & group);
-    inline bool appendDensityAltitude (const string & group);
+    inline static std::optional<Type> parseColourCode(const std::string & group);
+    inline bool appendHailstoneFraction (const std::string & group);
+    inline bool appendDensityAltitude (const std::string & group);
 };
 
 class UnknownGroup {
 public:
     UnknownGroup() = default;
-    static optional<UnknownGroup> parse(const string & group,
+    static std::optional<UnknownGroup> parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata = missingMetadata)
     {
         (void)group; (void)reportPart; (void)reportMetadata;
         return UnknownGroup();
     }
-    AppendResult inline append(const string & group,
+    AppendResult inline append(const std::string & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
         const ReportMetadata & reportMetadata = missingMetadata)
     {
@@ -1955,11 +1955,11 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 
 struct GroupInfo {
-    GroupInfo(Group g, ReportPart rp, string rawstr) :
-        group(move(g)), reportPart(rp), rawString(move(rawstr)) {}
+    GroupInfo(Group g, ReportPart rp, std::string rawstr) :
+        group(std::move(g)), reportPart(rp), rawString(std::move(rawstr)) {}
     Group group;
     ReportPart reportPart;
-    string rawString;
+    std::string rawString;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1988,14 +1988,14 @@ inline SyntaxGroup getSyntaxGroup(const Group & group);
 
 class GroupParser {
 public:
-    static Group parse(const string & group,
+    static Group parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata)
     {
         return parseAlternative<0>(group, reportPart, reportMetadata);
     }
 
-    static Group reparse(const string & group,
+    static Group reparse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata,
         const Group & previous)
@@ -2004,16 +2004,16 @@ public:
     }
 private:
     template <size_t I>
-    static Group parseAlternative(const string & group,
+    static Group parseAlternative(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata)
     {
-        using Alternative = variant_alternative_t<I, Group>;
-        if constexpr (!is_same<Alternative, FallbackGroup>::value) {
+        using Alternative = std::variant_alternative_t<I, Group>;
+        if constexpr (!std::is_same<Alternative, FallbackGroup>::value) {
             const auto parsed = Alternative::parse(group, reportPart, reportMetadata);
             if (parsed.has_value()) return *parsed;
         }
-        if constexpr (I >= (variant_size_v<Group> - 1)) {
+        if constexpr (I >= (std::variant_size_v<Group> - 1)) {
             return FallbackGroup();
         } else {
             return parseAlternative<I+1>(group, reportPart, reportMetadata);
@@ -2021,19 +2021,19 @@ private:
     }
 
     template <size_t I>
-    static Group reparseAlternative(const string & group,
+    static Group reparseAlternative(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata,
         size_t ignoreIndex)
     {
-        using Alternative = variant_alternative_t<I, Group>;
-        if constexpr (!is_same<Alternative, FallbackGroup>::value) {
+        using Alternative = std::variant_alternative_t<I, Group>;
+        if constexpr (!std::is_same<Alternative, FallbackGroup>::value) {
             if (I != ignoreIndex) {
                 const auto parsed = Alternative::parse(group, reportPart, reportMetadata);
                 if (parsed.has_value()) return *parsed;
             }
         }
-        if constexpr (I >= (variant_size_v<Group> - 1)) {
+        if constexpr (I >= (std::variant_size_v<Group> - 1)) {
             return FallbackGroup();
         } else {
             return reparseAlternative<I+1>(group, reportPart, reportMetadata, ignoreIndex);
@@ -2043,37 +2043,37 @@ private:
 
 struct ParseResult {
     ReportMetadata reportMetadata;
-    vector<GroupInfo> groups;
+    std::vector<GroupInfo> groups;
 };
 
 class Parser {
 public:
-    static inline ParseResult parse (const string & report, size_t groupLimit = 100);
+    static inline ParseResult parse (const std::string & report, size_t groupLimit = 100);
 
 private:
     static inline bool appendToLastResultGroup(ParseResult & result,
-        const string & groupStr,
+        const std::string & groupStr,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata,
         bool allowReparse = true);
     static inline void addGroupToResult(ParseResult & result,
         Group group,
         ReportPart reportPart,
-        string groupString);
+        std::string groupString);
     static inline void updateMetadata(const Group & group,
         ReportMetadata & reportMetadata);
 
 
     class ReportInput {
     public:
-        ReportInput(const string & s) : report(s) {}
-        friend ReportInput & operator >> (ReportInput & input, string & output) {
+        ReportInput(const std::string & s) : report(s) {}
+        friend ReportInput & operator >> (ReportInput & input, std::string & output) {
             output = input.getNextGroup();
             return input;
         }
     private:
-        inline string getNextGroup();
-        const string & report;
+        inline std::string getNextGroup();
+        const std::string & report;
         bool finished = false;
         size_t pos = 0;
     };
@@ -2139,7 +2139,7 @@ class Visitor {
 public:
     inline T visit(const Group & group,
         ReportPart reportPart = ReportPart::UNKNOWN,
-        const string & rawString = string());
+        const std::string & rawString = std::string());
     inline T visit(const GroupInfo & groupInfo) {
         return visit(groupInfo.group, groupInfo.reportPart, groupInfo.rawString);
     }
@@ -2147,141 +2147,141 @@ protected:
     virtual T visitKeywordGroup(
         const KeywordGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitLocationGroup(const LocationGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitReportTimeGroup(const ReportTimeGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitTrendGroup(const TrendGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitWindGroup(const WindGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitVisibilityGroup(const VisibilityGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitCloudGroup(const CloudGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitWeatherGroup(const WeatherGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitTemperatureGroup(const TemperatureGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitPressureGroup(const PressureGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitRunwayStateGroup(const RunwayStateGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitSeaSurfaceGroup(const SeaSurfaceGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitMinMaxTemperatureGroup(const MinMaxTemperatureGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitPrecipitationGroup(const PrecipitationGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitLayerForecastGroup(const LayerForecastGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitPressureTendencyGroup(const PressureTendencyGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitCloudTypesGroup(const CloudTypesGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitLowMidHighCloudGroup(const LowMidHighCloudGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitLightningGroup(const LightningGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitVicinityGroup(const VicinityGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitMiscGroup(const MiscGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
     virtual T visitUnknownGroup(const UnknownGroup & group,
         ReportPart reportPart,
-        const string & rawString) = 0;
+        const std::string & rawString) = 0;
 };
 
 template <typename T>
 inline T Visitor<T>::visit(const Group & group,
     ReportPart reportPart,
-    const string & rawString)
+    const std::string & rawString)
 {
-    if (const auto gr = get_if<KeywordGroup>(&group); gr) {
+    if (const auto gr = std::get_if<KeywordGroup>(&group); gr) {
         return this->visitKeywordGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<LocationGroup>(&group); gr) {
+    if (const auto gr = std::get_if<LocationGroup>(&group); gr) {
         return this->visitLocationGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<ReportTimeGroup>(&group); gr) {
+    if (const auto gr = std::get_if<ReportTimeGroup>(&group); gr) {
         return this->visitReportTimeGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<TrendGroup>(&group); gr) {
+    if (const auto gr = std::get_if<TrendGroup>(&group); gr) {
         return this->visitTrendGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<WindGroup>(&group); gr) {
+    if (const auto gr = std::get_if<WindGroup>(&group); gr) {
         return this->visitWindGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<VisibilityGroup>(&group); gr) {
+    if (const auto gr = std::get_if<VisibilityGroup>(&group); gr) {
         return this->visitVisibilityGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<CloudGroup>(&group); gr) {
+    if (const auto gr = std::get_if<CloudGroup>(&group); gr) {
         return this->visitCloudGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<WeatherGroup>(&group); gr) {
+    if (const auto gr = std::get_if<WeatherGroup>(&group); gr) {
         return this->visitWeatherGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<TemperatureGroup>(&group); gr) {
+    if (const auto gr = std::get_if<TemperatureGroup>(&group); gr) {
         return this->visitTemperatureGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<PressureGroup>(&group); gr) {
+    if (const auto gr = std::get_if<PressureGroup>(&group); gr) {
         return this->visitPressureGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<RunwayStateGroup>(&group); gr) {
+    if (const auto gr = std::get_if<RunwayStateGroup>(&group); gr) {
         return this->visitRunwayStateGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<SeaSurfaceGroup>(&group); gr) {
+    if (const auto gr = std::get_if<SeaSurfaceGroup>(&group); gr) {
         return this->visitSeaSurfaceGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<MinMaxTemperatureGroup>(&group); gr) {
+    if (const auto gr = std::get_if<MinMaxTemperatureGroup>(&group); gr) {
         return this->visitMinMaxTemperatureGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<PrecipitationGroup>(&group); gr) {
+    if (const auto gr = std::get_if<PrecipitationGroup>(&group); gr) {
         return this->visitPrecipitationGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<LayerForecastGroup>(&group); gr) {
+    if (const auto gr = std::get_if<LayerForecastGroup>(&group); gr) {
         return this->visitLayerForecastGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<PressureTendencyGroup>(&group); gr) {
+    if (const auto gr = std::get_if<PressureTendencyGroup>(&group); gr) {
         return this->visitPressureTendencyGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<CloudTypesGroup>(&group); gr) {
+    if (const auto gr = std::get_if<CloudTypesGroup>(&group); gr) {
         return this->visitCloudTypesGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<LowMidHighCloudGroup>(&group); gr) {
+    if (const auto gr = std::get_if<LowMidHighCloudGroup>(&group); gr) {
         return this->visitLowMidHighCloudGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<LightningGroup>(&group); gr) {
+    if (const auto gr = std::get_if<LightningGroup>(&group); gr) {
         return this->visitLightningGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<VicinityGroup>(&group); gr) {
+    if (const auto gr = std::get_if<VicinityGroup>(&group); gr) {
         return this->visitVicinityGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<MiscGroup>(&group); gr) {
+    if (const auto gr = std::get_if<MiscGroup>(&group); gr) {
         return this->visitMiscGroup(*gr, reportPart, rawString);
     }
-    if (const auto gr = get_if<UnknownGroup>(&group); gr) {
+    if (const auto gr = std::get_if<UnknownGroup>(&group); gr) {
         return this->visitUnknownGroup(*gr, reportPart, rawString);
     }
     return T();
@@ -2290,93 +2290,93 @@ inline T Visitor<T>::visit(const Group & group,
 template<>
 inline void Visitor<void>::visit(const Group & group,
     ReportPart reportPart,
-    const string & rawString)
+    const std::string & rawString)
 {
-    if (const auto gr = get_if<KeywordGroup>(&group); gr) {
+    if (const auto gr = std::get_if<KeywordGroup>(&group); gr) {
         this->visitKeywordGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<LocationGroup>(&group); gr) {
+    if (const auto gr = std::get_if<LocationGroup>(&group); gr) {
         this->visitLocationGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<ReportTimeGroup>(&group); gr) {
+    if (const auto gr = std::get_if<ReportTimeGroup>(&group); gr) {
         this->visitReportTimeGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<TrendGroup>(&group); gr) {
+    if (const auto gr = std::get_if<TrendGroup>(&group); gr) {
         this->visitTrendGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<WindGroup>(&group); gr) {
+    if (const auto gr = std::get_if<WindGroup>(&group); gr) {
         this->visitWindGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<VisibilityGroup>(&group); gr) {
+    if (const auto gr = std::get_if<VisibilityGroup>(&group); gr) {
         this->visitVisibilityGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<CloudGroup>(&group); gr) {
+    if (const auto gr = std::get_if<CloudGroup>(&group); gr) {
         this->visitCloudGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<WeatherGroup>(&group); gr) {
+    if (const auto gr = std::get_if<WeatherGroup>(&group); gr) {
         this->visitWeatherGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<TemperatureGroup>(&group); gr) {
+    if (const auto gr = std::get_if<TemperatureGroup>(&group); gr) {
         this->visitTemperatureGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<PressureGroup>(&group); gr) {
+    if (const auto gr = std::get_if<PressureGroup>(&group); gr) {
         this->visitPressureGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<RunwayStateGroup>(&group); gr) {
+    if (const auto gr = std::get_if<RunwayStateGroup>(&group); gr) {
         this->visitRunwayStateGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<SeaSurfaceGroup>(&group); gr) {
+    if (const auto gr = std::get_if<SeaSurfaceGroup>(&group); gr) {
         this->visitSeaSurfaceGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<MinMaxTemperatureGroup>(&group); gr) {
+    if (const auto gr = std::get_if<MinMaxTemperatureGroup>(&group); gr) {
         this->visitMinMaxTemperatureGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<PrecipitationGroup>(&group); gr) {
+    if (const auto gr = std::get_if<PrecipitationGroup>(&group); gr) {
         this->visitPrecipitationGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<LayerForecastGroup>(&group); gr) {
+    if (const auto gr = std::get_if<LayerForecastGroup>(&group); gr) {
         this->visitLayerForecastGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<PressureTendencyGroup>(&group); gr) {
+    if (const auto gr = std::get_if<PressureTendencyGroup>(&group); gr) {
         this->visitPressureTendencyGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<CloudTypesGroup>(&group); gr) {
+    if (const auto gr = std::get_if<CloudTypesGroup>(&group); gr) {
         this->visitCloudTypesGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<LowMidHighCloudGroup>(&group); gr) {
+    if (const auto gr = std::get_if<LowMidHighCloudGroup>(&group); gr) {
         this->visitLowMidHighCloudGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<LightningGroup>(&group); gr) {
+    if (const auto gr = std::get_if<LightningGroup>(&group); gr) {
         this->visitLightningGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<VicinityGroup>(&group); gr) {
+    if (const auto gr = std::get_if<VicinityGroup>(&group); gr) {
         this->visitVicinityGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<MiscGroup>(&group); gr) {
+    if (const auto gr = std::get_if<MiscGroup>(&group); gr) {
         this->visitMiscGroup(*gr, reportPart, rawString);
         return;
     }
-    if (const auto gr = get_if<UnknownGroup>(&group); gr) {
+    if (const auto gr = std::get_if<UnknownGroup>(&group); gr) {
         this->visitUnknownGroup(*gr, reportPart, rawString);
         return;
     }
@@ -2389,14 +2389,14 @@ inline void Visitor<void>::visit(const GroupInfo & groupInfo) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-inline optional<unsigned int> strToUint(const string & str,
-    size_t startPos,
-    size_t digits);
+inline std::optional<unsigned int> strToUint(const std::string & str,
+    std::size_t startPos,
+    std::size_t digits);
 
-inline optional<pair<unsigned int, unsigned int> > fractionStrToUint(
-    const string & str,
-    size_t startPos,
-    size_t length);
+inline std::optional<std::pair<unsigned int, unsigned int> > fractionStrToUint(
+    const std::string & str,
+    std::size_t startPos,
+    std::size_t length);
 
 } //namespace metaf
 
@@ -2405,14 +2405,14 @@ inline optional<pair<unsigned int, unsigned int> > fractionStrToUint(
 
 namespace metaf {
 
-optional<unsigned int> strToUint(const string & str,
-    size_t startPos,
-    size_t digits)
+std::optional<unsigned int> strToUint(const std::string & str,
+    std::size_t startPos,
+    std::size_t digits)
 {
-    optional<unsigned int> error;
+    std::optional<unsigned int> error;
     if (str.empty() || !digits || startPos + digits > str.length()) return error;
     unsigned int value = 0;
-    for (auto [i,c] = pair(0u, str.c_str() + startPos); i < digits; i++, c++) {
+    for (auto [i,c] = std::pair(0u, str.c_str() + startPos); i < digits; i++, c++) {
         if (*c < '0' || *c > '9') return error;
         static const auto decimalRadix = 10u;
         value = value * decimalRadix + (*c - '0');
@@ -2420,18 +2420,18 @@ optional<unsigned int> strToUint(const string & str,
     return value;
 }
 
-optional<pair<unsigned int, unsigned int> >
-    fractionStrToUint(const string & str,
-        size_t startPos,
-        size_t length)
+std::optional<std::pair<unsigned int, unsigned int> >
+    fractionStrToUint(const std::string & str,
+        std::size_t startPos,
+        std::size_t length)
 {
     //Equivalent regex "(\\d\\d?)/(\\d\\d?)"
-    optional<pair<unsigned int, unsigned int> > error;
+    std::optional<std::pair<unsigned int, unsigned int> > error;
     if (length + startPos > str.length()) length = str.length() - startPos;
     const int endPos = startPos + length;
 
     const auto slashPos = str.find('/', startPos);
-    if (slashPos == string::npos) return error;
+    if (slashPos == std::string::npos) return error;
 
     static const int minDigits = 1, maxDigits = 2;
 
@@ -2445,12 +2445,12 @@ optional<pair<unsigned int, unsigned int> >
     const auto numerator = strToUint(str, numeratorPos, numeratorLength);
     const auto denominator = strToUint(str, denominatorPos, denominatorLength);
     if (!numerator.has_value() || !denominator.has_value()) return error;
-    return pair(*numerator, *denominator);
+    return std::pair(*numerator, *denominator);
 }
 
-optional<Runway> Runway::fromString(const string & s, bool enableRwy) {
-    //static const regex rgx("R(?:WY)?(\\d\\d)([RLC])?");
-    static const optional<Runway> error;
+std::optional<Runway> Runway::fromString(const std::string & s, bool enableRwy) {
+    //static const std::regex rgx("R(?:WY)?(\\d\\d)([RLC])?");
+    static const std::optional<Runway> error;
     if (s.length() < 3) return error;
     if (s[0] != 'R') return error;
     auto numPos = 1u;
@@ -2469,12 +2469,12 @@ optional<Runway> Runway::fromString(const string & s, bool enableRwy) {
     return runway;
 }
 
-optional<Runway::Designator> Runway::designatorFromChar(char c) {
+std::optional<Runway::Designator> Runway::designatorFromChar(char c) {
     switch (c) {
         case 'R': return Designator::RIGHT;
         case 'C': return Designator::CENTER;
         case 'L': return Designator::LEFT;
-        default: return optional<Designator>();
+        default: return std::optional<Designator>();
     }
 }
 
@@ -2511,9 +2511,9 @@ MetafTime::Date MetafTime::dateBeforeRef(const Date & refDate) const {
     return result;
 }
 
-optional<MetafTime> MetafTime::fromStringDDHHMM(const string & s) {
-    //static const regex rgx ("(\\d\\d)?(\\d\\d)(\\d\\d)");
-    static const optional<MetafTime> error;
+std::optional<MetafTime> MetafTime::fromStringDDHHMM(const std::string & s) {
+    //static const std::regex rgx ("(\\d\\d)?(\\d\\d)(\\d\\d)");
+    static const std::optional<MetafTime> error;
     if (s.length() == 4) {
         const auto hour = strToUint(s, 0, 2);
         const auto minute = strToUint(s, 2, 2);
@@ -2537,9 +2537,9 @@ optional<MetafTime> MetafTime::fromStringDDHHMM(const string & s) {
     return error;
 }
 
-optional<MetafTime> MetafTime::fromStringDDHH(const string & s) {
-    //static const regex rgx ("(\\d\\d)(\\d\\d)");
-    static const optional<MetafTime> error;
+std::optional<MetafTime> MetafTime::fromStringDDHH(const std::string & s) {
+    //static const std::regex rgx ("(\\d\\d)(\\d\\d)");
+    static const std::optional<MetafTime> error;
     if (s.length() != 4) return error;
     const auto day = strToUint(s, 0, 2);
     const auto hour = strToUint(s, 2, 2);
@@ -2560,16 +2560,16 @@ bool MetafTime::isValid() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 Temperature::Temperature(float value) :
-    tempValue(round(value * 10.0)), freezing(value < 0), precise(true)  {}
+    tempValue(std::round(value * 10.0)), freezing(value < 0), precise(true)  {}
 
-optional<float> Temperature::relativeHumidity(
+std::optional<float> Temperature::relativeHumidity(
     const Temperature & airTemperature,
     const Temperature & dewPoint)
 {
     const auto temperatureC = airTemperature.toUnit(Temperature::Unit::C);
     const auto dewPointC = dewPoint.toUnit(Temperature::Unit::C);
     if (!temperatureC.has_value() || !dewPointC.has_value()) {
-        return optional<float>();
+        return std::optional<float>();
     }
     if (*temperatureC < *dewPointC) return 100.0;
     const auto saturationVapourPressure =
@@ -2638,9 +2638,9 @@ Temperature Temperature::windChill(
     return Temperature(windChillC);
 }
 
-optional<Temperature> Temperature::fromString(const string & s) {
-    //static const regex rgx ("(?:(M)?(\\d\\d))|//");
-    optional<Temperature> error;
+std::optional<Temperature> Temperature::fromString(const std::string & s) {
+    //static const std::regex rgx ("(?:(M)?(\\d\\d))|//");
+    std::optional<Temperature> error;
     if (s == "//") return Temperature();
     if (s.length() == 3) {
         if (s[0] != 'M') return error;
@@ -2661,9 +2661,9 @@ optional<Temperature> Temperature::fromString(const string & s) {
     return error;
 }
 
-optional<Temperature> Temperature::fromRemarkString(const string & s) {
-    //static const regex ("([01])(\\d\\d\\d)");
-    optional<Temperature> error;
+std::optional<Temperature> Temperature::fromRemarkString(const std::string & s) {
+    //static const std::regex ("([01])(\\d\\d\\d)");
+    std::optional<Temperature> error;
     if (s.length() != 4) return error;
     if (s[0] != '0' && s[0] != '1') return error;
     const auto t = strToUint(s, 1, 3);
@@ -2673,8 +2673,8 @@ optional<Temperature> Temperature::fromRemarkString(const string & s) {
     return Temperature(tValueSigned / 10.0);
 }
 
-optional<float> Temperature::toUnit(Unit unit) const {
-    optional<float> error;
+std::optional<float> Temperature::toUnit(Unit unit) const {
+    std::optional<float> error;
     auto v = temperature();
     if (!v.has_value() || tempUnit != Unit::C) return error;
     switch (unit) {
@@ -2685,9 +2685,9 @@ optional<float> Temperature::toUnit(Unit unit) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<Speed> Speed::fromString(const string & s, Unit unit) {
-    //static const regex rgx ("([1-9]?\\d\\d)|//");
-    static const optional<Speed> error;
+std::optional<Speed> Speed::fromString(const std::string & s, Unit unit) {
+    //static const std::regex rgx ("([1-9]?\\d\\d)|//");
+    static const std::optional<Speed> error;
     if (s.empty() || s == "//") return Speed();
     if (s.length() != 2 && s.length() != 3) return error;
     if (s.length() == 3 && s[0] == '0') return error;
@@ -2699,69 +2699,69 @@ optional<Speed> Speed::fromString(const string & s, Unit unit) {
     return speed;
 }
 
-optional<float> Speed::toUnit(Unit unit) const {
-    if (!speedValue.has_value()) return optional<float>();
+std::optional<float> Speed::toUnit(Unit unit) const {
+    if (!speedValue.has_value()) return std::optional<float>();
     switch (speedUnit) {
         case Unit::KNOTS:				return knotsToUnit(*speedValue, unit);
         case Unit::METERS_PER_SECOND:	return mpsToUnit(*speedValue, unit);
         case Unit::KILOMETERS_PER_HOUR:	return kmhToUnit(*speedValue, unit);
         case Unit::MILES_PER_HOUR:		return mphToUnit(*speedValue, unit);
-        default:						return optional<float>();
+        default:						return std::optional<float>();
     }
 }
 
-optional<Speed::Unit> Speed::unitFromString(const string & s) {
+std::optional<Speed::Unit> Speed::unitFromString(const std::string & s) {
     if (s == "KT") return Speed::Unit::KNOTS;
     if (s == "MPS") return Speed::Unit::METERS_PER_SECOND;
     if (s == "KMH") return Speed::Unit::KILOMETERS_PER_HOUR;
-    return optional<Speed::Unit>();
+    return std::optional<Speed::Unit>();
 }
 
-optional<float> Speed::knotsToUnit(float valueKnots, Unit otherUnit) {
+std::optional<float> Speed::knotsToUnit(float valueKnots, Unit otherUnit) {
     switch(otherUnit) {
         case Unit::KNOTS: 				return valueKnots;
         case Unit::METERS_PER_SECOND: 	return (valueKnots * 0.514444);
         case Unit::KILOMETERS_PER_HOUR:	return (valueKnots * 1.852);
         case Unit::MILES_PER_HOUR:		return (valueKnots * 1.150779);
-        default:						return optional<float>();
+        default:						return std::optional<float>();
     }
 }
 
-optional<float> Speed::mpsToUnit(float valueMps, Unit otherUnit) {
+std::optional<float> Speed::mpsToUnit(float valueMps, Unit otherUnit) {
     switch(otherUnit) {
         case Unit::KNOTS: 				return (valueMps * 1.943844);
         case Unit::METERS_PER_SECOND: 	return valueMps;
         case Unit::KILOMETERS_PER_HOUR:	return (valueMps * 3.6);
         case Unit::MILES_PER_HOUR:		return (valueMps * 2.236936);
-        default:						return optional<float>();
+        default:						return std::optional<float>();
     }
 }
 
-optional<float> Speed::kmhToUnit(float valueKmh, Unit otherUnit) {
+std::optional<float> Speed::kmhToUnit(float valueKmh, Unit otherUnit) {
     switch(otherUnit) {
         case Unit::KNOTS: 				return (valueKmh / 1.852);
         case Unit::METERS_PER_SECOND:	return (valueKmh / 3.6);
         case Unit::KILOMETERS_PER_HOUR:	return valueKmh;
         case Unit::MILES_PER_HOUR:		return (valueKmh * 0.621371);
-        default:						return optional<float>();
+        default:						return std::optional<float>();
     }
 }
 
-optional<float> Speed::mphToUnit(float valueMph, Unit otherUnit) {
+std::optional<float> Speed::mphToUnit(float valueMph, Unit otherUnit) {
     switch(otherUnit) {
         case Unit::KNOTS: 				return (valueMph * 0.868976);
         case Unit::METERS_PER_SECOND: 	return (valueMph * 0.44704);
         case Unit::KILOMETERS_PER_HOUR:	return (valueMph * 1.609344);
         case Unit::MILES_PER_HOUR:		return valueMph;
-        default:						return optional<float>();
+        default:						return std::optional<float>();
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-optional<Distance> Distance::fromMeterString(const string & s) {
-    //static const regex rgx ("(\\d\\d\\d\\d)|////");
-    static const optional<Distance> error;
+std::optional<Distance> Distance::fromMeterString(const std::string & s) {
+    //static const std::regex rgx ("(\\d\\d\\d\\d)|////");
+    static const std::optional<Distance> error;
     if (s.length() != 4) return error;
     Distance distance;
     distance.distUnit = Unit::METERS;
@@ -2778,13 +2778,13 @@ optional<Distance> Distance::fromMeterString(const string & s) {
     return distance;
 }
 
-optional<Distance> Distance::fromMileString(const string & s,
+std::optional<Distance> Distance::fromMileString(const std::string & s,
     bool remarkFormat)
 {
-    // static const regex rgx ("([PM])?(\\d?\\d)(?:/(\\d?\\d))?SM|////SM");
-    // static const regex rgx ("([PM])?(\\d?\\d)(?:/(\\d?\\d))?");
-    static const optional<Distance> error;
-    static const auto unitStr = string ("SM");
+    // static const std::regex rgx ("([PM])?(\\d?\\d)(?:/(\\d?\\d))?SM|////SM");
+    // static const std::regex rgx ("([PM])?(\\d?\\d)(?:/(\\d?\\d))?");
+    static const std::optional<Distance> error;
+    static const auto unitStr = std::string ("SM");
     static const auto unitLength = unitStr.length();
 
     Distance distance;
@@ -2801,7 +2801,7 @@ optional<Distance> Distance::fromMileString(const string & s,
         distance.distModifier = *modifier;
     }
 
-    if (s.find('/') == string::npos) {
+    if (s.find('/') == std::string::npos) {
         //The value is integer, e.g. 3SM or 15SM
         const int intPos = static_cast<int>(modifier.has_value());
         const int intLength = s.length() -
@@ -2822,8 +2822,8 @@ optional<Distance> Distance::fromMileString(const string & s,
             fracLength);
         if (!fraction.has_value()) return error;
         auto integer = 0u;
-        auto numerator = get<0>(*fraction);
-        auto denominator = get<1>(*fraction);
+        auto numerator = std::get<0>(*fraction);
+        auto denominator = std::get<1>(*fraction);
         if (!numerator || !denominator) return error;
         if (numerator >= denominator) { //e.g. 11/2SM = 1 1/2SM
             static const auto decimalRadix = 10u;
@@ -2838,9 +2838,9 @@ optional<Distance> Distance::fromMileString(const string & s,
     return distance;
 }
 
-optional<Distance> Distance::fromHeightString(const string & s) {
-    //static const regex rgx ("(\\d\\d\\d)|///");
-    static const optional<Distance> error;
+std::optional<Distance> Distance::fromHeightString(const std::string & s) {
+    //static const std::regex rgx ("(\\d\\d\\d)|///");
+    static const std::optional<Distance> error;
     if (s.length() != 3) return error;
     Distance distance;
     distance.distUnit = Unit::FEET;
@@ -2851,9 +2851,9 @@ optional<Distance> Distance::fromHeightString(const string & s) {
     return distance;
 }
 
-optional<Distance> Distance::fromRvrString(const string & s, bool unitFeet) {
-    //static const regex rgx ("([PM])?(\\d\\d\\d\\d)|////");
-    static const optional<Distance> error;
+std::optional<Distance> Distance::fromRvrString(const std::string & s, bool unitFeet) {
+    //static const std::regex rgx ("([PM])?(\\d\\d\\d\\d)|////");
+    static const std::optional<Distance> error;
     Distance distance;
     distance.distUnit = unitFeet ? Unit::FEET : Unit::METERS;
     if (s.length() == 4) {
@@ -2875,11 +2875,11 @@ optional<Distance> Distance::fromRvrString(const string & s, bool unitFeet) {
     return error;
 }
 
-optional<pair<Distance, Distance>> Distance::fromLayerString(
-    const string & s)
+std::optional<std::pair<Distance, Distance>> Distance::fromLayerString(
+    const std::string & s)
 {
-    //static const regex rgx ("(\\d\\d\\d)(\\d)");
-    static const optional<pair<Distance, Distance>> error;
+    //static const std::regex rgx ("(\\d\\d\\d)(\\d)");
+    static const std::optional<std::pair<Distance, Distance>> error;
     if (s.length() != 4) return error;
     const auto h = strToUint(s, 0, 3);
     if (!h.has_value())	return error;
@@ -2890,18 +2890,18 @@ optional<pair<Distance, Distance>> Distance::fromLayerString(
     topHeight.distUnit = Unit::FEET;
     baseHeight.dist = *h * heightFactor;
     topHeight.dist = *h * heightFactor + *d * layerDepthFactor;
-    return pair(baseHeight, topHeight);
+    return std::pair(baseHeight, topHeight);
 }
 
-optional<Distance> Distance::fromKmString(const string & s) {
-    //static const regex rgx ("(\\d\\d?)KM");
-    static const optional<Distance> error;
+std::optional<Distance> Distance::fromKmString(const std::string & s) {
+    //static const std::regex rgx ("(\\d\\d?)KM");
+    static const std::optional<Distance> error;
     static const auto metersPerKm = 1000u;
 
     if (s.length() != 3 && s.length() != 4) return error;
 
     static const char kmStr[] = "KM";
-    static const size_t kmStrLen = strlen(kmStr);
+    static const size_t kmStrLen = std::strlen(kmStr);
     const auto numLen = s.length() - kmStrLen;
     if (s.substr(numLen) != kmStr) return error;
 
@@ -2914,10 +2914,10 @@ optional<Distance> Distance::fromKmString(const string & s) {
     return distance;
 }
 
-optional<Distance> Distance::fromIntegerAndFraction(const Distance & integer,
+std::optional<Distance> Distance::fromIntegerAndFraction(const Distance & integer,
     const Distance & fraction)
 {
-    static const optional<Distance> error;
+    static const std::optional<Distance> error;
     if (integer.modifier() != Modifier::NONE &&
         integer.modifier() != Modifier::LESS_THAN &&
         integer.modifier() != Modifier::MORE_THAN) return error;
@@ -2937,9 +2937,9 @@ optional<Distance> Distance::fromIntegerAndFraction(const Distance & integer,
     return result;
 }
 
-optional<float> Distance::toUnit(Unit unit) const {
+std::optional<float> Distance::toUnit(Unit unit) const {
     const auto d = distance();
-    if (!d.has_value()) return optional<float>();
+    if (!d.has_value()) return std::optional<float>();
     switch (distUnit) {
         case Unit::METERS: 			return metersToUnit(*d, unit);
         case Unit::STATUTE_MILES:	return milesToUnit(*d, unit);
@@ -2947,82 +2947,82 @@ optional<float> Distance::toUnit(Unit unit) const {
     }
 }
 
-optional<float> Distance::distance() const {
-    if (!dist.has_value()) return optional<float>();
+std::optional<float> Distance::distance() const {
+    if (!dist.has_value()) return std::optional<float>();
     if (distUnit == Unit::STATUTE_MILES)
         return (static_cast<float>(*dist) / statuteMileFactor);
     return *dist;
 }
 
-optional<pair<unsigned int, Distance::MilesFraction>> Distance::miles() const
+std::optional<std::pair<unsigned int, Distance::MilesFraction>> Distance::miles() const
 {
     const auto milesDecimal = toUnit(Unit::STATUTE_MILES);
-    if (!milesDecimal.has_value()) return optional<pair<unsigned int, Distance::MilesFraction>>();
+    if (!milesDecimal.has_value()) return std::optional<std::pair<unsigned int, Distance::MilesFraction>>();
     static const unsigned int denominator = 16u;
-    const unsigned int topHeavyNumerator = round(*milesDecimal * denominator);
+    const unsigned int topHeavyNumerator = std::round(*milesDecimal * denominator);
     switch (topHeavyNumerator) {
-        case 0:  return pair(0u, MilesFraction::NONE);
-        case 1:  return pair(0u, MilesFraction::F_1_16);
-        case 2:  return pair(0u, MilesFraction::F_1_8);
-        case 3:  return pair(0u, MilesFraction::F_3_16);
-        case 4:  return pair(0u, MilesFraction::F_1_4);
-        case 5:  return pair(0u, MilesFraction::F_5_16);
+        case 0:  return std::pair(0u, MilesFraction::NONE);
+        case 1:  return std::pair(0u, MilesFraction::F_1_16);
+        case 2:  return std::pair(0u, MilesFraction::F_1_8);
+        case 3:  return std::pair(0u, MilesFraction::F_3_16);
+        case 4:  return std::pair(0u, MilesFraction::F_1_4);
+        case 5:  return std::pair(0u, MilesFraction::F_5_16);
         case 6:
-        case 7:  return pair(0u, MilesFraction::F_3_8);
+        case 7:  return std::pair(0u, MilesFraction::F_3_8);
         case 8:
-        case 9:  return pair(0u, MilesFraction::F_1_2);
+        case 9:  return std::pair(0u, MilesFraction::F_1_2);
         case 10:
-        case 11: return pair(0u, MilesFraction::F_5_8);
+        case 11: return std::pair(0u, MilesFraction::F_5_8);
         case 12:
-        case 13: return pair(0u, MilesFraction::F_3_4);
+        case 13: return std::pair(0u, MilesFraction::F_3_4);
         case 14:
-        case 15: return pair(0u, MilesFraction::F_7_8);
+        case 15: return std::pair(0u, MilesFraction::F_7_8);
         case 16:
-        case 17: return pair(1u, MilesFraction::NONE);
+        case 17: return std::pair(1u, MilesFraction::NONE);
         case 18:
-        case 19: return pair(1u, MilesFraction::F_1_8);
+        case 19: return std::pair(1u, MilesFraction::F_1_8);
         case 20:
-        case 21: return pair(1u, MilesFraction::F_1_4);
+        case 21: return std::pair(1u, MilesFraction::F_1_4);
         case 22:
-        case 23: return pair(1u, MilesFraction::F_3_8);
+        case 23: return std::pair(1u, MilesFraction::F_3_8);
         case 24:
-        case 25: return pair(1u, MilesFraction::F_1_2);
+        case 25: return std::pair(1u, MilesFraction::F_1_2);
         case 26:
-        case 27: return pair(1u, MilesFraction::F_5_8);
+        case 27: return std::pair(1u, MilesFraction::F_5_8);
         case 28:
-        case 29: return pair(1u, MilesFraction::F_3_4);
+        case 29: return std::pair(1u, MilesFraction::F_3_4);
         case 30:
-        case 31: return pair(1u, MilesFraction::F_7_8);
+        case 31: return std::pair(1u, MilesFraction::F_7_8);
         case 32:
         case 33:
         case 34:
-        case 35: return pair(2u, MilesFraction::NONE);
+        case 35: return std::pair(2u, MilesFraction::NONE);
         case 36:
         case 37:
         case 38:
-        case 39: return pair(2u, MilesFraction::F_1_4);
+        case 39: return std::pair(2u, MilesFraction::F_1_4);
         case 40:
         case 41:
         case 42:
-        case 43: return pair(2u, MilesFraction::F_1_2);
+        case 43: return std::pair(2u, MilesFraction::F_1_2);
         case 44:
         case 45:
         case 46:
-        case 47: return pair(2u, MilesFraction::F_3_4);
+        case 47: return std::pair(2u, MilesFraction::F_3_4);
         default: break;
     }
     unsigned int integer = topHeavyNumerator / denominator;
     if (integer > 15) integer = 5 * (integer / 5);
-    return pair (integer, MilesFraction::NONE);
+    return std::pair (integer, MilesFraction::NONE);
 }
 
-optional<Distance::Modifier> Distance::modifierFromChar(char c) {
+std::optional<Distance::Modifier> Distance::modifierFromChar(char c) {
     if (c == 'M') return Modifier::LESS_THAN;
     if (c == 'P') return Modifier::MORE_THAN;
-    return optional<Modifier>();
+    return std::optional<Modifier>();
 }
 
-optional<float> Distance::metersToUnit(float value, Unit unit) {
+std::optional<float> Distance::metersToUnit(float value, Unit unit) {
     switch(unit) {
         case Unit::METERS: 			return value;
         case Unit::STATUTE_MILES:	return (value / 1609.347);
@@ -3030,7 +3030,7 @@ optional<float> Distance::metersToUnit(float value, Unit unit) {
     }
 }
 
-optional<float> Distance::milesToUnit(float value, Unit unit) {
+std::optional<float> Distance::milesToUnit(float value, Unit unit) {
     switch(unit) {
         case Unit::METERS: 			return (value * 1609.347);
         case Unit::STATUTE_MILES:	return value;
@@ -3038,7 +3038,7 @@ optional<float> Distance::milesToUnit(float value, Unit unit) {
     }
 }
 
-optional<float> Distance::feetToUnit(float value, Unit unit) {
+std::optional<float> Distance::feetToUnit(float value, Unit unit) {
     switch(unit) {
         case Unit::METERS: 			return (value * 0.3048);
         case Unit::STATUTE_MILES:	return (value / 5280.0);
@@ -3072,12 +3072,12 @@ Distance Distance::makeVicinity() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-optional<Direction> Direction::fromCardinalString(
-    const string & s,
+std::optional<Direction> Direction::fromCardinalString(
+    const std::string & s,
     bool enableOhdAlqds,
     bool enableUnknown)
 {
-    optional<Direction> error;
+    std::optional<Direction> error;
     if (s.empty()) return error;
     if (s == "NDV") {
         Direction dir;
@@ -3115,8 +3115,8 @@ optional<Direction> Direction::fromCardinalString(
     return dir;
 }
 
-optional<Direction> Direction::fromDegreesString(const string & s) {
-    optional<Direction> error;
+std::optional<Direction> Direction::fromDegreesString(const std::string & s) {
+    std::optional<Direction> error;
     Direction direction;
     if (s.length() != 3) return error;
     if (s == "///") {
@@ -3127,7 +3127,7 @@ optional<Direction> Direction::fromDegreesString(const string & s) {
         direction.dirType = Type::VARIABLE;
         return direction;
     }
-    //static const regex rgx("\\d\\d0");
+    //static const std::regex rgx("\\d\\d0");
     if (s[2] != '0') return error;
     const auto dir = strToUint(s, 0, 3);
     if (!dir.has_value()) return error;
@@ -3166,27 +3166,27 @@ Direction::Cardinal Direction::cardinal(bool trueDirections) const {
     return Cardinal::NOT_REPORTED;
 }
 
-optional<pair<Direction, Direction>> Direction::fromSectorString(
-    const string & s)
+std::optional<std::pair<Direction, Direction>> Direction::fromSectorString(
+    const std::string & s)
 {
-    static const optional<pair<Direction, Direction>> notRecognised;
-    static const regex rgx
+    static const std::optional<std::pair<Direction, Direction>> notRecognised;
+    static const std::regex rgx
         ("([NSWE][WE]?)(?:-[NSWE]|-[NS][WE])*-([NSWE][WE]?)");
     static const auto matchBegin = 1, matchEnd = 2;
-    smatch match;
+    std::smatch match;
     if (!regex_match(s, match, rgx)) return notRecognised;
     const auto dirBegin = fromCardinalString(match.str(matchBegin));
     if (!dirBegin.has_value()) return(notRecognised);
     const auto dirEnd = fromCardinalString(match.str(matchEnd));
     if (!dirEnd.has_value()) return(notRecognised);
-    return pair(*dirBegin, *dirEnd);
+    return std::pair(*dirBegin, *dirEnd);
 }
 
-vector<Direction> Direction::sectorCardinalDirToVector(
+std::vector<Direction> Direction::sectorCardinalDirToVector(
     const Direction & dirFrom,
     const Direction & dirTo)
 {
-    vector<Direction> result;
+    std::vector<Direction> result;
     const auto cardinalFrom = dirFrom.cardinal();
     const auto cardinalTo = dirTo.cardinal();
     if (cardinalFrom == Cardinal::NOT_REPORTED ||
@@ -3262,9 +3262,9 @@ Direction::Direction(Cardinal c) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<Pressure> Pressure::fromString(const string & s) {
-    //static const regex rgx("([QA])(?:(\\d\\d\\d\\d)|////)");
-    static const optional<Pressure> error;
+std::optional<Pressure> Pressure::fromString(const std::string & s) {
+    //static const std::regex rgx("([QA])(?:(\\d\\d\\d\\d)|////)");
+    static const std::optional<Pressure> error;
     if (s.length() != 5) return error;
     Pressure pressure;
     if (s == "A////") {
@@ -3291,9 +3291,9 @@ optional<Pressure> Pressure::fromString(const string & s) {
     return pressure;
 }
 
-optional<Pressure> Pressure::fromForecastString(const string & s) {
-    //static const regex rgx("QNH(\\d\\d\\d\\d)INS");
-    static const optional<Pressure> error;
+std::optional<Pressure> Pressure::fromForecastString(const std::string & s) {
+    //static const std::regex rgx("QNH(\\d\\d\\d\\d)INS");
+    static const std::optional<Pressure> error;
     if (s.length() != 10) return error;
     if (s[0] != 'Q' || s[1] != 'N' || s[2] != 'H') return error;
     if (s[7] != 'I' || s[8] != 'N' || s[9] != 'S') return error;
@@ -3305,10 +3305,10 @@ optional<Pressure> Pressure::fromForecastString(const string & s) {
     return pressure;
 }
 
-optional<Pressure> Pressure::fromSlpString(const string & s) {
+std::optional<Pressure> Pressure::fromSlpString(const std::string & s) {
     //SLP982 = 998.2 hPa, SLP015 = 1001.5 hPa, SLP221 = 1022.1 hPa
-    //static const regex rgx("SLP(\\d\\d\\d)");
-    static const optional<Pressure> error;
+    //static const std::regex rgx("SLP(\\d\\d\\d)");
+    static const std::optional<Pressure> error;
     if (s.length() != 6) return error;
     if (s[0] != 'S' || s[1] != 'L' || s[2] != 'P') return error;
     const auto pr = strToUint(s, 3, 3);
@@ -3321,9 +3321,9 @@ optional<Pressure> Pressure::fromSlpString(const string & s) {
     return pressure;
 }
 
-optional<Pressure> Pressure::fromQfeString(const string & s) {
-    //static const regex rgx("QFE(\\d\\d\\d)(/\\d\\d\\d\\d)?");
-    static const optional<Pressure> error;
+std::optional<Pressure> Pressure::fromQfeString(const std::string & s) {
+    //static const std::regex rgx("QFE(\\d\\d\\d)(/\\d\\d\\d\\d)?");
+    static const std::optional<Pressure> error;
     if (s.length() != 6 && s.length() != 11) return error;
     if (s[0] != 'Q' || s[1] != 'F' || s[2] != 'E') return error;
     const auto mmHg = strToUint(s, 3, 3);
@@ -3339,9 +3339,9 @@ optional<Pressure> Pressure::fromQfeString(const string & s) {
     return pressure;
 }
 
-optional<Pressure> Pressure::fromTendencyString(const string & s) {
-    //static const regex rgx("(\\d\\d\\d)|///");
-    static const optional<Pressure> error;
+std::optional<Pressure> Pressure::fromTendencyString(const std::string & s) {
+    //static const std::regex rgx("(\\d\\d\\d)|///");
+    static const std::optional<Pressure> error;
     if (s.length() != 3) return error;
     if (s == "///") return Pressure();
     const auto hPa = strToUint(s, 0, 3);
@@ -3352,8 +3352,8 @@ optional<Pressure> Pressure::fromTendencyString(const string & s) {
     return pressure;
 }
 
-optional<float> Pressure::toUnit(Unit unit) const {
-    if (!pressureValue.has_value()) return optional<float>();
+std::optional<float> Pressure::toUnit(Unit unit) const {
+    if (!pressureValue.has_value()) return std::optional<float>();
     auto v = *pressureValue;
     static const auto hpaPerInHg = 33.8639;
     static const auto hpaPerMmHg = 1.3332;
@@ -3384,9 +3384,9 @@ optional<float> Pressure::toUnit(Unit unit) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<Precipitation> Precipitation::fromRainfallString(const string & s) {
-    //static const regex rgx("\\d?\\d\\d\\.\\d");
-    static const optional<Precipitation> error;
+std::optional<Precipitation> Precipitation::fromRainfallString(const std::string & s) {
+    //static const std::regex rgx("\\d?\\d\\d\\.\\d");
+    static const std::optional<Precipitation> error;
     if (s == "///./" || s == "//./") return Precipitation();
     if (s.length() != 4 && s.length() != 5) return error;
     if (s[s.length()-2] != '.') return error;
@@ -3399,9 +3399,9 @@ optional<Precipitation> Precipitation::fromRainfallString(const string & s) {
     return precipitation;
 }
 
-optional<Precipitation> Precipitation::fromRunwayDeposits(const string & s) {
-    //static const regex rgx("\\d\\d");
-    optional<Precipitation> error;
+std::optional<Precipitation> Precipitation::fromRunwayDeposits(const std::string & s) {
+    //static const std::regex rgx("\\d\\d");
+    std::optional<Precipitation> error;
     if (s.length() != 2) return error;
     if (s == "//") return Precipitation();
     const auto depth = strToUint(s, 0, 2);
@@ -3420,7 +3420,7 @@ optional<Precipitation> Precipitation::fromRunwayDeposits(const string & s) {
         case Reserved::DEPTH_40CM: precipitation.precipValue = 400; break;
 
         case Reserved::RUNWAY_NOT_OPERATIONAL:
-        precipitation.precipValue = optional<float>();
+        precipitation.precipValue = std::optional<float>();
         break;
 
         default:
@@ -3430,13 +3430,13 @@ optional<Precipitation> Precipitation::fromRunwayDeposits(const string & s) {
     return precipitation;
 }
 
-optional<Precipitation> Precipitation::fromRemarkString(const string & s,
+std::optional<Precipitation> Precipitation::fromRemarkString(const std::string & s,
         float factor,
         Precipitation::Unit unit,
         bool allowNotReported)
 {
-    //static const regex rgx("\\d\\d\\d\\d?");
-    optional<Precipitation> error;
+    //static const std::regex rgx("\\d\\d\\d\\d?");
+    std::optional<Precipitation> error;
     Precipitation precipitation;
     precipitation.precipUnit = unit;
     if (s.length() != 3 && s.length() != 4) return error;
@@ -3450,26 +3450,26 @@ optional<Precipitation> Precipitation::fromRemarkString(const string & s,
     return precipitation;
 }
 
-optional<pair<Precipitation, Precipitation>>
-    Precipitation::fromSnincrString(const string & s)
+std::optional<std::pair<Precipitation, Precipitation>>
+    Precipitation::fromSnincrString(const std::string & s)
 {
-    //static const regex rgx("\\d?\\d)/(\\d?\\d");
-    static const optional<pair<Precipitation, Precipitation>> error;
+    //static const std::regex rgx("\\d?\\d)/(\\d?\\d");
+    static const std::optional<std::pair<Precipitation, Precipitation>> error;
     const auto fraction = fractionStrToUint(s, 0, s.length());
     if (!fraction.has_value()) return error;
 
     Precipitation total;
     total.precipUnit = Precipitation::Unit::INCHES;
-    total.precipValue = get<0>(*fraction);
+    total.precipValue = std::get<0>(*fraction);
 
     Precipitation change;
     change.precipUnit = Precipitation::Unit::INCHES;
-    change.precipValue = get<1>(*fraction);
+    change.precipValue = std::get<1>(*fraction);
 
-    return pair(total, change);
+    return std::pair(total, change);
 }
 
-optional<float> Precipitation::toUnit(Unit unit) const {
+std::optional<float> Precipitation::toUnit(Unit unit) const {
     if (precipValue.has_value()) {
         if (precipUnit == unit) return precipValue;
         static const auto mmPerInch = 25.4;
@@ -3480,14 +3480,14 @@ optional<float> Precipitation::toUnit(Unit unit) const {
             return (*precipValue * mmPerInch);
         }
     }
-    return optional<float>();
+    return std::optional<float>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<SurfaceFriction> SurfaceFriction::fromString(const string & s) {
-    //static const regex rgx("\\d\\d");
-    static const optional<SurfaceFriction> error;
+std::optional<SurfaceFriction> SurfaceFriction::fromString(const std::string & s) {
+    //static const std::regex rgx("\\d\\d");
+    static const std::optional<SurfaceFriction> error;
     if (s.length() != 2) return error;
     if (s == "//") return SurfaceFriction();
     const auto sfVal = strToUint(s, 0, 2);
@@ -3524,7 +3524,7 @@ optional<SurfaceFriction> SurfaceFriction::fromString(const string & s) {
         case Reserved::RESERVED_96:
         case Reserved::RESERVED_97:
         case Reserved::RESERVED_98:
-        return optional<SurfaceFriction>();
+        return std::optional<SurfaceFriction>();
 
         case Reserved::UNRELIABLE:
         sf.sfType = Type::UNRELIABLE;
@@ -3550,9 +3550,9 @@ SurfaceFriction::BrakingAction SurfaceFriction::brakingAction() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<WaveHeight> WaveHeight::fromString(const string & s) {
-    //static const regex rgx("S(\\d)|H(\\d?\\d?\\d)");
-    static const optional<WaveHeight> error;
+std::optional<WaveHeight> WaveHeight::fromString(const std::string & s) {
+    //static const std::regex rgx("S(\\d)|H(\\d?\\d?\\d)");
+    static const std::optional<WaveHeight> error;
     if (s.length() < 2 || s.length() > 4) return error;
     WaveHeight wh;
     if (s == "H///") {
@@ -3581,9 +3581,9 @@ optional<WaveHeight> WaveHeight::fromString(const string & s) {
     return error;
 }
 
-optional<float> WaveHeight::toUnit(Unit unit) const {
+std::optional<float> WaveHeight::toUnit(Unit unit) const {
     const auto wh = waveHeight();
-    if (!wh.has_value() || whUnit != Unit::METERS) return optional<float>();
+    if (!wh.has_value() || whUnit != Unit::METERS) return std::optional<float>();
     switch (unit) {
         case Unit::METERS: return *wh;
         case Unit::FEET:   return *wh / 0.3048;
@@ -3606,7 +3606,7 @@ WaveHeight::StateOfSurface WaveHeight::stateOfSurface() const {
     return StateOfSurface::PHENOMENAL;
 }
 
-optional<unsigned int> WaveHeight::waveHeightFromStateOfSurfaceChar(char c) {
+std::optional<unsigned int> WaveHeight::waveHeightFromStateOfSurfaceChar(char c) {
     switch (c) {
         case '0': return maxWaveHeightCalmGlassy;
         case '1': return maxWaveHeightCalmRippled;
@@ -3618,22 +3618,22 @@ optional<unsigned int> WaveHeight::waveHeightFromStateOfSurfaceChar(char c) {
         case '7': return maxWaveHeightHigh;
         case '8': return maxWaveHeightVeryHigh;
         case '9': return minWaveHeightPhenomenal;
-        default:  return optional<unsigned int>();
+        default:  return std::optional<unsigned int>();
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-vector<WeatherPhenomena::Weather> WeatherPhenomena::weather() const
+std::vector<WeatherPhenomena::Weather> WeatherPhenomena::weather() const
 {
-    vector<Weather> result;
+    std::vector<Weather> result;
     for (auto i=0u; i < wsz; i++)
         result.push_back(w[i]);
     return result;
 }
 
 
-optional <WeatherPhenomena> WeatherPhenomena::fromString(const string & s,
+std::optional <WeatherPhenomena> WeatherPhenomena::fromString(const std::string & s,
         bool enableQualifiers)
 {
     // Descriptors MI, PR, BC are allowed only with FG
@@ -3715,8 +3715,8 @@ optional <WeatherPhenomena> WeatherPhenomena::fromString(const string & s,
     }
     // Precipitation
     WeatherPhenomena result;
-    string precipStr = s;
-    static const optional <WeatherPhenomena> error;
+    std::string precipStr = s;
+    static const std::optional <WeatherPhenomena> error;
     if (precipStr.length() < 2) return(error);
     // Only + - RE qualifiers are allowed; no qualifier equals moderate intensity
     if (enableQualifiers) {
@@ -3762,7 +3762,7 @@ optional <WeatherPhenomena> WeatherPhenomena::fromString(const string & s,
     for (auto i = 0u; i < wSize; i++) {
         if (precipStr.empty()) break;
         const auto ws = precipStr.substr(0,2);
-        optional<Weather> w;
+        std::optional<Weather> w;
         if (ws == "DZ") w = Weather::DRIZZLE;
         if (ws == "RA") w = Weather::RAIN;
         if (ws == "SN") w = Weather::SNOW;
@@ -3813,17 +3813,17 @@ inline bool WeatherPhenomena::isDescriptorFzAllowed (Weather w) {
     }
 }
 
-optional <WeatherPhenomena> WeatherPhenomena::fromWeatherBeginEndString(
-    const string & s,
+std::optional <WeatherPhenomena> WeatherPhenomena::fromWeatherBeginEndString(
+    const std::string & s,
     const MetafTime & reportTime,
     const WeatherPhenomena & previous)
 {
-    optional <WeatherPhenomena> error;
-    static const regex rgx("((?:[A-Z][A-Z]){0,4})([BE])(\\d\\d)?(\\d\\d)");
+    std::optional <WeatherPhenomena> error;
+    static const std::regex rgx("((?:[A-Z][A-Z]){0,4})([BE])(\\d\\d)?(\\d\\d)");
     static const auto matchPhenomena = 1, matchEvent = 2;
     static const auto matchHour = 3, matchMinute = 4;
 
-    smatch match;
+    std::smatch match;
     if (!regex_match(s, match, rgx)) return error;
 
     WeatherPhenomena result;
@@ -3841,9 +3841,9 @@ optional <WeatherPhenomena> WeatherPhenomena::fromWeatherBeginEndString(
     if (match.str(matchEvent) == "E") result.ev = Event::ENDING;
 
     unsigned int hour = reportTime.hour();
-    unsigned int minute = static_cast<unsigned int>(stoi(match.str(matchMinute)));
+    unsigned int minute = static_cast<unsigned int>(std::stoi(match.str(matchMinute)));
     if (const auto h = match.str(matchHour); !h.empty())
-        hour = static_cast<unsigned int>(stoi(h));
+        hour = static_cast<unsigned int>(std::stoi(h));
     result.tm = MetafTime(hour, minute);
 
     return result;
@@ -3874,12 +3874,12 @@ bool WeatherPhenomena::isValid() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<CloudType> CloudType::fromString(const string & s) {
-    static const optional<CloudType> error;
+std::optional<CloudType> CloudType::fromString(const std::string & s) {
+    static const std::optional<CloudType> error;
     if (s.empty()) return error;
     if (s[0] >= '0' && s[0] <= '9') {
         // Format with height 8NS070 or 3TCU022 (6 or 7 chars)
-        // regex("(\d)([A-Z][A-Z][A-Z]?)(\d\d\d)")
+        // std::regex("(\d)([A-Z][A-Z][A-Z]?)(\d\d\d)")
         if (s.length() != 6 && s.length() != 7) return error;
         static const auto heightDigits = 3u, oktaDigits = 1u;
         const auto typeStrLen = s.length() - heightDigits - oktaDigits;
@@ -3892,7 +3892,7 @@ optional<CloudType> CloudType::fromString(const string & s) {
         return CloudType(typeValue, *heightValue, s[0] - '0');
     } else {
         // Format without height BLSN1 or SC1 (3 or more chars)
-        // regex("([A-Z][A-Z]+)(\d)")
+        // std::regex("([A-Z][A-Z]+)(\d)")
         if (s.length() < 3) return error;
         const auto oktaCh = s[s.length() - 1];
         if (oktaCh < '0' || oktaCh > '9') return error;
@@ -3903,7 +3903,7 @@ optional<CloudType> CloudType::fromString(const string & s) {
     }
 }
 
-optional<CloudType> CloudType::fromStringObscuration(const string & s) {
+std::optional<CloudType> CloudType::fromStringObscuration(const std::string & s) {
     auto type = Type::NOT_REPORTED;
     if (s == "BLSN") type = Type::BLOWING_SNOW;
     if (s == "BLDU") type = Type::BLOWING_DUST;
@@ -3911,12 +3911,12 @@ optional<CloudType> CloudType::fromStringObscuration(const string & s) {
     if (s == "VA") type = Type::VOLCANIC_ASH;
     if (s == "FU") type = Type::SMOKE;
     if (s == "FG") type = Type::FOG;
-    if (type == Type::NOT_REPORTED) return optional<CloudType>();
+    if (type == Type::NOT_REPORTED) return std::optional<CloudType>();
     return CloudType(type, Distance(), 0);
 }
 
 
-CloudType::Type CloudType::cloudTypeFromString(const string & s) {
+CloudType::Type CloudType::cloudTypeFromString(const std::string & s) {
     if (s == "CB")    return Type::CUMULONIMBUS;
     if (s == "TCU")   return Type::TOWERING_CUMULUS;
     if (s == "CU")    return Type::CUMULUS;
@@ -3934,7 +3934,7 @@ CloudType::Type CloudType::cloudTypeFromString(const string & s) {
     return Type::NOT_REPORTED;
 }
 
-CloudType::Type CloudType::cloudTypeOrObscurationFromString(const string & s) {
+CloudType::Type CloudType::cloudTypeOrObscurationFromString(const std::string & s) {
     if (const auto t = cloudTypeFromString(s); t != Type::NOT_REPORTED) return t;
     if (s == "BLSN")  return Type::BLOWING_SNOW;
     if (s == "BLDU")  return Type::BLOWING_DUST;
@@ -3954,7 +3954,7 @@ CloudType::Type CloudType::cloudTypeOrObscurationFromString(const string & s) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<KeywordGroup> KeywordGroup::parse(const string & group,
+std::optional<KeywordGroup> KeywordGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -3989,10 +3989,10 @@ optional<KeywordGroup> KeywordGroup::parse(const string & group,
         if (group == "NOSPECI") return KeywordGroup(Type::NOSPECI);
     }
     if (group == "$") return KeywordGroup(Type::MAINTENANCE_INDICATOR);
-    return optional<KeywordGroup>();
+    return std::optional<KeywordGroup>();
 }
 
-AppendResult KeywordGroup::append(const string & group,
+AppendResult KeywordGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -4002,14 +4002,14 @@ AppendResult KeywordGroup::append(const string & group,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<LocationGroup> LocationGroup::parse(const string & group,
+std::optional<LocationGroup> LocationGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    static const optional<LocationGroup> notRecognised;
+    static const std::optional<LocationGroup> notRecognised;
     if (reportPart != ReportPart::HEADER) return notRecognised;
-    static const regex rgx = regex("[A-Z][A-Z0-9]{3}");
+    static const std::regex rgx = std::regex("[A-Z][A-Z0-9]{3}");
     if (!regex_match(group, rgx)) return notRecognised;
     LocationGroup result;
     strncpy(result.location, group.c_str(), locationLength);
@@ -4017,7 +4017,7 @@ optional<LocationGroup> LocationGroup::parse(const string & group,
     return result;
 }
 
-AppendResult LocationGroup::append(const string & group,
+AppendResult LocationGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -4027,13 +4027,13 @@ AppendResult LocationGroup::append(const string & group,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<ReportTimeGroup> ReportTimeGroup::parse(const string & group,
+std::optional<ReportTimeGroup> ReportTimeGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    static const optional<ReportTimeGroup> notRecognised;
-    static const regex rgx ("\\d\\d\\d\\d\\d\\dZ");
+    static const std::optional<ReportTimeGroup> notRecognised;
+    static const std::regex rgx ("\\d\\d\\d\\d\\d\\dZ");
     static const auto posTime = 0, lenTime = 6;
     if (reportPart != ReportPart::HEADER) return notRecognised;
     if (!regex_match(group, rgx)) return notRecognised;
@@ -4045,7 +4045,7 @@ optional<ReportTimeGroup> ReportTimeGroup::parse(const string & group,
     return g;
 }
 
-AppendResult ReportTimeGroup::append(const string & group,
+AppendResult ReportTimeGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -4055,7 +4055,7 @@ AppendResult ReportTimeGroup::append(const string & group,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<TrendGroup> TrendGroup::parse(const string & group,
+std::optional<TrendGroup> TrendGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -4088,10 +4088,10 @@ optional<TrendGroup> TrendGroup::parse(const string & group,
         if (auto ts = fromTimeSpan(group); ts.has_value()) return ts;
     }
     // Cannot detect group
-    return optional<TrendGroup>();
+    return std::optional<TrendGroup>();
 }
 
-AppendResult TrendGroup::append(const string & group,
+AppendResult TrendGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -4106,11 +4106,11 @@ AppendResult TrendGroup::append(const string & group,
     return AppendResult::NOT_APPENDED;
 }
 
-optional<TrendGroup> TrendGroup::fromTimeSpan(const string & s) {
-    static const optional<TrendGroup> notRecognised;
-    static const regex rgx("(\\d\\d\\d\\d)/(\\d\\d\\d\\d)");
+std::optional<TrendGroup> TrendGroup::fromTimeSpan(const std::string & s) {
+    static const std::optional<TrendGroup> notRecognised;
+    static const std::regex rgx("(\\d\\d\\d\\d)/(\\d\\d\\d\\d)");
     static const auto matchFrom = 1, matchTill = 2;
-    smatch match;
+    std::smatch match;
     if (!regex_match(s, match, rgx)) return notRecognised;
     const auto from = MetafTime::fromStringDDHH(match.str(matchFrom));
     const auto till = MetafTime::fromStringDDHH(match.str(matchTill));
@@ -4124,11 +4124,11 @@ optional<TrendGroup> TrendGroup::fromTimeSpan(const string & s) {
     return result;
 }
 
-optional<TrendGroup> TrendGroup::fromTimeSpanHHMM(const string & s) {
-    static const optional<TrendGroup> notRecognised;
-    static const regex rgx("(\\d\\d\\d\\d)/(\\d\\d\\d\\d)");
+std::optional<TrendGroup> TrendGroup::fromTimeSpanHHMM(const std::string & s) {
+    static const std::optional<TrendGroup> notRecognised;
+    static const std::regex rgx("(\\d\\d\\d\\d)/(\\d\\d\\d\\d)");
     static const auto matchFrom = 1, matchTill = 2;
-    smatch match;
+    std::smatch match;
     if (!regex_match(s, match, rgx)) return notRecognised;
     const auto from = MetafTime::fromStringDDHHMM(match.str(matchFrom));
     const auto till = MetafTime::fromStringDDHHMM(match.str(matchTill));
@@ -4142,9 +4142,9 @@ optional<TrendGroup> TrendGroup::fromTimeSpanHHMM(const string & s) {
     return result;
 }
 
-optional<TrendGroup> TrendGroup::fromFm(const string & s) {
-    static const optional<TrendGroup> notRecognised;
-    static const regex rgx("FM\\d\\d\\d\\d\\d\\d");
+std::optional<TrendGroup> TrendGroup::fromFm(const std::string & s) {
+    static const std::optional<TrendGroup> notRecognised;
+    static const std::regex rgx("FM\\d\\d\\d\\d\\d\\d");
     static const auto posTime = 2, lenTime = 6;
     if (!regex_match(s, rgx)) return notRecognised;
     const auto time = MetafTime::fromStringDDHHMM(s.substr(posTime, lenTime));
@@ -4156,11 +4156,11 @@ optional<TrendGroup> TrendGroup::fromFm(const string & s) {
     return result;
 }
 
-optional<TrendGroup> TrendGroup::fromTrendTime(const string & s) {
-    static const optional<TrendGroup> notRecognised;
-    static const regex rgx("([FTA][MLT])(\\d\\d\\d\\d)");
+std::optional<TrendGroup> TrendGroup::fromTrendTime(const std::string & s) {
+    static const std::optional<TrendGroup> notRecognised;
+    static const std::regex rgx("([FTA][MLT])(\\d\\d\\d\\d)");
     static const auto matchType = 1, matchTime = 2;
-    smatch match;
+    std::smatch match;
     if (!regex_match(s, match, rgx)) return notRecognised;
     const auto time = MetafTime::fromStringDDHHMM(match.str(matchTime));
     if (!time.has_value()) return notRecognised;
@@ -4290,12 +4290,12 @@ void TrendGroup::combineTime(const TrendGroup & nextTrendGroup) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<WindGroup> WindGroup::parse(const string & group,
+std::optional<WindGroup> WindGroup::parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    static const optional<WindGroup> notRecognised;
+    static const std::optional<WindGroup> notRecognised;
 
     if (reportPart == ReportPart::METAR) {
         if (group == "WS") return WindGroup(Type::WIND_SHEAR_IN_LOWER_LAYERS, IncompleteText::WS);
@@ -4315,13 +4315,13 @@ optional<WindGroup> WindGroup::parse(const string & group,
     if (const auto result = parseVariableSector(group); result.has_value())
         return *result;
 
-    static const regex windRgx("(?:WS(\\d\\d\\d)/)?"
+    static const std::regex windRgx("(?:WS(\\d\\d\\d)/)?"
         "(\\d\\d0|VRB|///)([1-9]?\\d\\d|//)(?:G([1-9]?\\d\\d))?([KM][TMP][HS]?)");
     static const auto matchWindShearHeight = 1, matchWindDir = 2;
     static const auto matchWindSpeed = 3, matchWindGust = 4, matchWindUnit = 5;
 
     // Surface wind or wind shear, e.g. dd0ssKT or dd0ssGggMPS or WShhhdd0ssGggKT
-    if (smatch match; regex_match(group, match, windRgx)) {
+    if (std::smatch match; std::regex_match(group, match, windRgx)) {
         const auto speedUnit = Speed::unitFromString(match.str(matchWindUnit));
         if (!speedUnit.has_value()) return notRecognised;
         const auto speed = Speed::fromString(match.str(matchWindSpeed), *speedUnit);
@@ -4358,7 +4358,7 @@ optional<WindGroup> WindGroup::parse(const string & group,
     return notRecognised;
 }
 
-AppendResult WindGroup::append(const string & group,
+AppendResult WindGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -4405,13 +4405,13 @@ AppendResult WindGroup::append(const string & group,
     }
 }
 
-optional<WindGroup> WindGroup::parseVariableSector(const string & group) {
-    static const optional<WindGroup> notRecognised;
-    static const regex varWindRgx("(\\d\\d0)V(\\d\\d0)");
+std::optional<WindGroup> WindGroup::parseVariableSector(const std::string & group) {
+    static const std::optional<WindGroup> notRecognised;
+    static const std::regex varWindRgx("(\\d\\d0)V(\\d\\d0)");
     static const auto matchVarWindBegin = 1, matchVarWindEnd = 2;
 
-    smatch match;
-    if (!regex_match(group, match, varWindRgx)) return notRecognised;
+    std::smatch match;
+    if (!std::regex_match(group, match, varWindRgx)) return notRecognised;
     WindGroup result;
     const auto begin = Direction::fromDegreesString(match.str(matchVarWindBegin));
     if (!begin.has_value()) return notRecognised;
@@ -4423,7 +4423,7 @@ optional<WindGroup> WindGroup::parseVariableSector(const string & group) {
     return result;
 }
 
-AppendResult WindGroup::appendVariableSector(const string & group) {
+AppendResult WindGroup::appendVariableSector(const std::string & group) {
     if (const auto vs = parseVariableSector(group); vs.has_value()) {
         windType = Type::SURFACE_WIND_WITH_VARIABLE_SECTOR;
         vsecBegin = vs->vsecBegin;
@@ -4433,16 +4433,16 @@ AppendResult WindGroup::appendVariableSector(const string & group) {
     return AppendResult::NOT_APPENDED;
 }
 
-AppendResult WindGroup::appendPeakWind(const string & group,
+AppendResult WindGroup::appendPeakWind(const std::string & group,
     const ReportMetadata & reportMetadata)
 {
 
-    static const regex pkWndRgx("(\\d\\d0)([1-9]?\\d\\d)/(\\d\\d)?(\\d\\d)");
+    static const std::regex pkWndRgx("(\\d\\d0)([1-9]?\\d\\d)/(\\d\\d)?(\\d\\d)");
     static const auto matchDir = 1, matchSpeed = 2;
     static const auto matchHour = 3, matchMinute = 4;
 
-    smatch match;
-    if (!regex_match(group, match, pkWndRgx)) return AppendResult::GROUP_INVALIDATED;
+    std::smatch match;
+    if (!std::regex_match(group, match, pkWndRgx)) return AppendResult::GROUP_INVALIDATED;
 
     windType = Type::PEAK_WIND;
     const auto dir = Direction::fromDegreesString(match.str(matchDir));
@@ -4466,7 +4466,7 @@ AppendResult WindGroup::appendPeakWind(const string & group,
     return AppendResult::APPENDED;
 }
 
-AppendResult WindGroup::appendWindShift(const string & group,
+AppendResult WindGroup::appendWindShift(const std::string & group,
     const ReportMetadata & reportMetadata)
 {
     //Append FROPA to wind shift group with or without time
@@ -4515,7 +4515,7 @@ bool WindGroup::isValid() const {
 
 ///////////////////////////////////////////////////////////////////////////
 
-optional<VisibilityGroup> VisibilityGroup::parse(const string & group,
+std::optional<VisibilityGroup> VisibilityGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -4546,10 +4546,10 @@ optional<VisibilityGroup> VisibilityGroup::parse(const string & group,
     if (reportPart == ReportPart::METAR) {
         if (const auto v = fromRvr(group); v.has_value()) return v;
     }
-    return optional<VisibilityGroup>();
+    return std::optional<VisibilityGroup>();
 }
 
-AppendResult VisibilityGroup::append(const string & group,
+AppendResult VisibilityGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -4650,10 +4650,10 @@ AppendResult VisibilityGroup::append(const string & group,
     }
 }
 
-optional<VisibilityGroup> VisibilityGroup::fromIncompleteInteger(
-    const string & group)
+std::optional<VisibilityGroup> VisibilityGroup::fromIncompleteInteger(
+    const std::string & group)
 {
-    static const optional<VisibilityGroup> error;
+    static const std::optional<VisibilityGroup> error;
     VisibilityGroup	result;
     if (!result.appendInteger(group)) return error;
     if (result.visibility().modifier() != Distance::Modifier::NONE) return error;
@@ -4661,14 +4661,14 @@ optional<VisibilityGroup> VisibilityGroup::fromIncompleteInteger(
     return result;
 }
 
-optional<VisibilityGroup> VisibilityGroup::fromMeters(
-    const string & group)
+std::optional<VisibilityGroup> VisibilityGroup::fromMeters(
+    const std::string & group)
 {
-    static const optional<VisibilityGroup> notRecognised;
-    static const regex rgx("(\\d\\d\\d\\d|////)([NSWE][WED]?[V]?)?");
+    static const std::optional<VisibilityGroup> notRecognised;
+    static const std::regex rgx("(\\d\\d\\d\\d|////)([NSWE][WED]?[V]?)?");
     static const auto matchVis = 1, matchDir = 2;
-    smatch match;
-    if (regex_match(group, match, rgx)) {
+    std::smatch match;
+    if (std::regex_match(group, match, rgx)) {
         const auto v = Distance::fromMeterString(match.str(matchVis));
         if (!v.has_value()) return notRecognised;
         const auto d = Direction::fromCardinalString(match.str(matchDir));
@@ -4684,13 +4684,13 @@ optional<VisibilityGroup> VisibilityGroup::fromMeters(
     return notRecognised;
 }
 
-optional<VisibilityGroup> VisibilityGroup::fromRvr(const string & group) {
-    static const optional<VisibilityGroup> notRecognised;
-    static const regex rgx("(R\\d\\d[RCL]?)/(////|[PM]?\\d\\d\\d\\d)"
+std::optional<VisibilityGroup> VisibilityGroup::fromRvr(const std::string & group) {
+    static const std::optional<VisibilityGroup> notRecognised;
+    static const std::regex rgx("(R\\d\\d[RCL]?)/(////|[PM]?\\d\\d\\d\\d)"
         "(?:V([PM]?\\d\\d\\d\\d))?(FT/?)?([UND/])?");
     static const auto matchRunway = 1, matchRvr = 2, matchVarRvr = 3, matchUnit = 4;
     static const auto matchTrend = 5;
-    smatch match;
+    std::smatch match;
     if (!regex_match(group, match, rgx)) return notRecognised;
     const bool unitFeet = match.length(matchUnit);
     const auto runway = Runway::fromString(match.str(matchRunway));
@@ -4711,7 +4711,7 @@ optional<VisibilityGroup> VisibilityGroup::fromRvr(const string & group) {
     return result;
 }
 
-bool VisibilityGroup::appendFractionToIncompleteInteger(const string & group,
+bool VisibilityGroup::appendFractionToIncompleteInteger(const std::string & group,
     IncompleteText next)
 {
     const auto v = Distance::fromMileString(group);
@@ -4724,7 +4724,7 @@ bool VisibilityGroup::appendFractionToIncompleteInteger(const string & group,
 }
 
 
-bool VisibilityGroup::appendDirection(const string & group, IncompleteText next) {
+bool VisibilityGroup::appendDirection(const std::string & group, IncompleteText next) {
     if (const auto d = Direction::fromCardinalString(group); d.has_value()) {
         dir = d;
         if (visType == Type::PREVAILING) visType = Type::DIRECTIONAL;
@@ -4732,8 +4732,8 @@ bool VisibilityGroup::appendDirection(const string & group, IncompleteText next)
         return true;
     }
     if (const auto d = Direction::fromSectorString(group); d.has_value()) {
-        dirSecFrom = get<0>(*d);
-        dirSecTo = get<1>(*d);
+        dirSecFrom = std::get<0>(*d);
+        dirSecTo = std::get<1>(*d);
         if (visType == Type::PREVAILING) visType = Type::SECTOR;
         incompleteText = next;
         return true;
@@ -4741,7 +4741,7 @@ bool VisibilityGroup::appendDirection(const string & group, IncompleteText next)
     return false;
 }
 
-bool VisibilityGroup::appendRunway(const string & group, IncompleteText next) {
+bool VisibilityGroup::appendRunway(const std::string & group, IncompleteText next) {
     const auto r = Runway::fromString(group, true);
     if (!r.has_value()) return false;
     rw = r;
@@ -4751,9 +4751,9 @@ bool VisibilityGroup::appendRunway(const string & group, IncompleteText next) {
     return true;
 }
 
-bool VisibilityGroup::appendInteger(const string & group, IncompleteText next) {
+bool VisibilityGroup::appendInteger(const std::string & group, IncompleteText next) {
     if (group.empty() || group.length() > 3) return false;
-    if (group.find('/') != string::npos) return false;
+    if (group.find('/') != std::string::npos) return false;
     if (vis.isReported()) return false;
     const auto v = Distance::fromMileString(group, true);
     if (!v.has_value()) return false;
@@ -4762,26 +4762,26 @@ bool VisibilityGroup::appendInteger(const string & group, IncompleteText next) {
     return true;
 }
 
-bool VisibilityGroup::appendFraction(const string & group, IncompleteText next) {
-    if (group.find('/') == string::npos) return false;
+bool VisibilityGroup::appendFraction(const std::string & group, IncompleteText next) {
+    if (group.find('/') == std::string::npos) return false;
     const auto v = Distance::fromMileString(group, true);
     if (!v.has_value()) return false;
     if (vis.isReported()) {
-        const auto d = Distance::fromIntegerAndFraction(vis, move(*v));
+        const auto d = Distance::fromIntegerAndFraction(vis, std::move(*v));
         if (!d.has_value()) return false;
-        vis = move(*d);
+        vis = std::move(*d);
     } else {
-        vis = move(*v);
+        vis = std::move(*v);
     }
     incompleteText = next;
     return true;
 }
 
-bool VisibilityGroup::appendVariableMaxFraction(const string & group, IncompleteText next) {
+bool VisibilityGroup::appendVariableMaxFraction(const std::string & group, IncompleteText next) {
     const auto fraction = fractionStrToUint(group, 0, group.length());
     if (!fraction.has_value()) return false;
-    const auto numerator = get<0>(*fraction);
-    const auto denominator = get<1>(*fraction);
+    const auto numerator = std::get<0>(*fraction);
+    const auto denominator = std::get<1>(*fraction);
     const auto v = Distance(numerator, denominator);
     if (!v.isValue()) return false;
     const auto t = Distance::fromIntegerAndFraction(visMax, v);
@@ -4791,15 +4791,15 @@ bool VisibilityGroup::appendVariableMaxFraction(const string & group, Incomplete
     return true;
 }
 
-bool VisibilityGroup::appendVariable(const string & group,
+bool VisibilityGroup::appendVariable(const std::string & group,
     IncompleteText nextIfMaxIsInteger,
     IncompleteText nextIfMaxIsFraction)
 {
     const auto vPos = group.find('V');
-    if (vPos == string::npos ||
+    if (vPos == std::string::npos ||
         !vPos ||
         vPos == group.length()) return false;
-    const bool maxInteger = (group.find('/', vPos) == string::npos);
+    const bool maxInteger = (group.find('/', vPos) == std::string::npos);
     const auto min =
         Distance::fromMileString(group.substr(0, vPos), true);
     if (!min.has_value()) return false;
@@ -4808,19 +4808,19 @@ bool VisibilityGroup::appendVariable(const string & group,
     if (!max.has_value()) return false;
 
     if (vis.isReported()) {
-        const auto v = Distance::fromIntegerAndFraction(vis, move(*min));
+        const auto v = Distance::fromIntegerAndFraction(vis, std::move(*min));
         if (!v.has_value()) return false;
-        vis = move(*v);
+        vis = std::move(*v);
     } else {
-        vis = move(*min);
+        vis = std::move(*min);
     }
-    visMax = move(*max);
+    visMax = std::move(*max);
     makeVariable();
     incompleteText = maxInteger ? nextIfMaxIsInteger : nextIfMaxIsFraction;
     return true;
 }
 
-bool VisibilityGroup::appendMeters(const string & group, IncompleteText next) {
+bool VisibilityGroup::appendMeters(const std::string & group, IncompleteText next) {
     const auto v = Distance::fromMeterString(group);
     if (!v.has_value()) return false;
     if (!v->isReported()) return false;
@@ -4829,11 +4829,11 @@ bool VisibilityGroup::appendMeters(const string & group, IncompleteText next) {
     return true;
 }
 
-bool VisibilityGroup::appendVariableMeters(const string & group, IncompleteText next) {
-    static const regex rgx("(\\d\\d\\d\\d)V(\\d\\d\\d\\d)");
+bool VisibilityGroup::appendVariableMeters(const std::string & group, IncompleteText next) {
+    static const std::regex rgx("(\\d\\d\\d\\d)V(\\d\\d\\d\\d)");
     static const auto matchMin = 1, matchMax = 2;
-    smatch match;
-    if (!regex_match(group, match, rgx)) return false;
+    std::smatch match;
+    if (!std::regex_match(group, match, rgx)) return false;
     const auto min = Distance::fromMeterString(match.str(matchMin));
     if (!min.has_value()) return false;
     const auto max = Distance::fromMeterString(match.str(matchMax));
@@ -4846,7 +4846,7 @@ bool VisibilityGroup::appendVariableMeters(const string & group, IncompleteText 
     return true;
 }
 
-VisibilityGroup::Trend VisibilityGroup::trendFromString(const string & s) {
+VisibilityGroup::Trend VisibilityGroup::trendFromString(const std::string & s) {
     if (s == "/") return Trend::NOT_REPORTED;
     if (s == "U") return Trend::UPWARD;
     if (s == "N") return Trend::NEUTRAL;
@@ -4869,7 +4869,7 @@ bool VisibilityGroup::isValid() const {
 
 ///////////////////////////////////////////////////////////////////////////
 
-optional<CloudGroup> CloudGroup::parse(const string & group,
+std::optional<CloudGroup> CloudGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -4888,10 +4888,10 @@ optional<CloudGroup> CloudGroup::parse(const string & group,
         }
         return parseVariableCloudLayer(group);
     }
-    return optional<CloudGroup>();
+    return std::optional<CloudGroup>();
 }
 
-AppendResult CloudGroup::append(const string & group,
+AppendResult CloudGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -4926,19 +4926,19 @@ AppendResult CloudGroup::append(const string & group,
     }
 }
 
-optional<CloudGroup> CloudGroup::parseCloudLayerOrVertVis(const string & s) {
-    static const optional<CloudGroup> notRecognised;
+std::optional<CloudGroup> CloudGroup::parseCloudLayerOrVertVis(const std::string & s) {
+    static const std::optional<CloudGroup> notRecognised;
     // Attempt to parse 'no cloud' groups
     if (s == "NCD") return CloudGroup(Type::NO_CLOUDS, Amount::NCD);
     if (s == "NSC") return CloudGroup(Type::NO_CLOUDS, Amount::NSC);
     if (s == "CLR") return CloudGroup(Type::NO_CLOUDS, Amount::NONE_CLR);
     if (s == "SKC") return CloudGroup(Type::NO_CLOUDS, Amount::NONE_SKC);
     //Attempt to parse cloud layer or vertical visibility
-    smatch match;
-    static const regex rgx(
+    std::smatch match;
+    static const std::regex rgx(
         "([A-Z][A-Z][A-Z]?|///)(\\d\\d\\d|///)([CT][BC][U]?|///)?");
     static const auto matchAmount = 1, matchHeight = 2, matchCnvType = 3;
-    if (!regex_match(s, match, rgx)) return notRecognised;
+    if (!std::regex_match(s, match, rgx)) return notRecognised;
 
     const auto amount = amountFromString(match.str(matchAmount));
     if (!amount.has_value()) return notRecognised;
@@ -4960,13 +4960,13 @@ optional<CloudGroup> CloudGroup::parseCloudLayerOrVertVis(const string & s) {
     return result;
 }
 
-optional<CloudGroup> CloudGroup::parseVariableCloudLayer(const string & s) {
-    static const optional<CloudGroup> notRecognised;
+std::optional<CloudGroup> CloudGroup::parseVariableCloudLayer(const std::string & s) {
+    static const std::optional<CloudGroup> notRecognised;
 
-    smatch match;
-    static const regex rgx("([A-Z][A-Z][A-Z])(\\d\\d\\d)?");
+    std::smatch match;
+    static const std::regex rgx("([A-Z][A-Z][A-Z])(\\d\\d\\d)?");
     static const auto matchAmount = 1, matchHeight = 2;
-    if (!regex_match(s, match, rgx)) return notRecognised;
+    if (!std::regex_match(s, match, rgx)) return notRecognised;
 
     CloudGroup result;
     result.tp = Type::CLOUD_LAYER;
@@ -4977,7 +4977,7 @@ optional<CloudGroup> CloudGroup::parseVariableCloudLayer(const string & s) {
     if (!amount.has_value()) return notRecognised;
     result.amnt = *amount;
 
-    if (const string heightStr = match.str(matchHeight); !heightStr.empty()) {
+    if (const std::string heightStr = match.str(matchHeight); !heightStr.empty()) {
         const auto height = Distance::fromHeightString(heightStr);
         if (!height.has_value()) return notRecognised;
         result.heightOrVertVis = *height;
@@ -5022,7 +5022,7 @@ CloudType::Type CloudGroup::convectiveTypeToCloudTypeType(ConvectiveType t) {
     }
 }
 
-optional<CloudType> CloudGroup::cloudType() const {
+std::optional<CloudType> CloudGroup::cloudType() const {
     const auto cldConvType = convectiveTypeToCloudTypeType(convectiveType());
     const auto cldOkta = amountToMaxOkta(amount());
     switch (type()) {
@@ -5037,31 +5037,31 @@ optional<CloudType> CloudGroup::cloudType() const {
         return cldTp;
 
         default:
-        return optional<CloudType>();
+        return std::optional<CloudType>();
     }
 }
 
-optional<CloudGroup::Amount> CloudGroup::amountFromString(const string & s) {
+std::optional<CloudGroup::Amount> CloudGroup::amountFromString(const std::string & s) {
     if (s == "FEW") return CloudGroup::Amount::FEW;
     if (s == "SCT") return CloudGroup::Amount::SCATTERED;
     if (s == "BKN") return CloudGroup::Amount::BROKEN;
     if (s == "OVC") return CloudGroup::Amount::OVERCAST;
     if (s == "VV") return CloudGroup::Amount::OBSCURED;
     if (s == "///") return CloudGroup::Amount::NOT_REPORTED;
-    return optional<Amount>();
+    return std::optional<Amount>();
 }
 
-optional<CloudGroup::ConvectiveType> CloudGroup::convectiveTypeFromString(
-    const string & s)
+std::optional<CloudGroup::ConvectiveType> CloudGroup::convectiveTypeFromString(
+    const std::string & s)
 {
     if (s.empty()) return ConvectiveType::NONE;
     if (s == "TCU") return ConvectiveType::TOWERING_CUMULUS;
     if (s == "CB") return ConvectiveType::CUMULONIMBUS;
     if (s == "///") return ConvectiveType::NOT_REPORTED;
-    return optional<ConvectiveType>();
+    return std::optional<ConvectiveType>();
 }
 
-AppendResult CloudGroup::appendVariableCloudAmount(const string & group) {
+AppendResult CloudGroup::appendVariableCloudAmount(const std::string & group) {
     const auto newAmount = amountFromString(group);
     if (!newAmount.has_value()) return AppendResult::GROUP_INVALIDATED;
     const auto a1 = amount();
@@ -5076,17 +5076,17 @@ AppendResult CloudGroup::appendVariableCloudAmount(const string & group) {
     return AppendResult::APPENDED;
 }
 
-AppendResult CloudGroup::appendCeiling(const string & group) {
+AppendResult CloudGroup::appendCeiling(const std::string & group) {
     if (const auto d = Distance::fromHeightString(group); d.has_value()) {
         if (!d->isReported()) return AppendResult::GROUP_INVALIDATED;
         heightOrVertVis = *d;
         incompleteText = IncompleteText::CIG_NUM;
         return AppendResult::APPENDED;
     }
-    static const regex rgx ("(\\d\\d\\d)V(\\d\\d\\d)");
+    static const std::regex rgx ("(\\d\\d\\d)V(\\d\\d\\d)");
     static const auto matchMinHeight = 1, matchMaxHeight = 2;
-    smatch match;
-    if (!regex_match(group, match, rgx)) return AppendResult::GROUP_INVALIDATED;
+    std::smatch match;
+    if (!std::regex_match(group, match, rgx)) return AppendResult::GROUP_INVALIDATED;
     const auto minH = Distance::fromHeightString(match.str(matchMinHeight));
     if (!minH.has_value()) return AppendResult::GROUP_INVALIDATED;
     const auto maxH = Distance::fromHeightString(match.str(matchMaxHeight));
@@ -5098,7 +5098,7 @@ AppendResult CloudGroup::appendCeiling(const string & group) {
     return AppendResult::APPENDED;
 }
 
-AppendResult CloudGroup::appendRunwayOrCardinalDirection(const string & group) {
+AppendResult CloudGroup::appendRunwayOrCardinalDirection(const std::string & group) {
     incompleteText = IncompleteText::NONE;
     rw = Runway::fromString(group, true);
     if (rw.has_value()) return AppendResult::APPENDED;
@@ -5107,11 +5107,11 @@ AppendResult CloudGroup::appendRunwayOrCardinalDirection(const string & group) {
     return AppendResult::NOT_APPENDED;
 }
 
-AppendResult CloudGroup::appendObscuration(const string & group) {
-    static const regex rgx("([A-Z][A-Z][A-Z])(\\d\\d\\d)");
+AppendResult CloudGroup::appendObscuration(const std::string & group) {
+    static const std::regex rgx("([A-Z][A-Z][A-Z])(\\d\\d\\d)");
     static const auto matchAmount = 1, matchHeight = 2;
-    smatch match;
-    if (!regex_match(group, match, rgx)) return AppendResult::GROUP_INVALIDATED;
+    std::smatch match;
+    if (!std::regex_match(group, match, rgx)) return AppendResult::GROUP_INVALIDATED;
 
     const auto h = Distance::fromHeightString(match.str(matchHeight));
     if (!h.has_value()) return AppendResult::GROUP_INVALIDATED;
@@ -5128,11 +5128,11 @@ AppendResult CloudGroup::appendObscuration(const string & group) {
 
 ///////////////////////////////////////////////////////////////////////////
 
-optional<WeatherGroup> WeatherGroup::parse(const string & group,
+std::optional<WeatherGroup> WeatherGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
-    optional<WeatherGroup> notRecognised;
+    std::optional<WeatherGroup> notRecognised;
     if (reportPart == ReportPart::METAR || reportPart == ReportPart::TAF) {
         if (group == "NSW") return WeatherGroup(Type::NSW);
         if (const auto wp = parseWeatherWithoutEvent(group, reportPart); wp.has_value()) {
@@ -5154,7 +5154,7 @@ optional<WeatherGroup> WeatherGroup::parse(const string & group,
     return notRecognised;
 }
 
-AppendResult WeatherGroup::append(const string & group,
+AppendResult WeatherGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -5196,18 +5196,18 @@ AppendResult WeatherGroup::append(const string & group,
     return AppendResult::NOT_APPENDED;
 }
 
-inline vector<WeatherPhenomena> WeatherGroup::weatherPhenomena() const {
-    vector<WeatherPhenomena> result;
+inline std::vector<WeatherPhenomena> WeatherGroup::weatherPhenomena() const {
+    std::vector<WeatherPhenomena> result;
     for (auto i=0u; i < wsz; i++)
         result.push_back(w[i]);
     return result;
 }
 
-optional<WeatherPhenomena> WeatherGroup::parseWeatherWithoutEvent(
-    const string & group,
+std::optional<WeatherPhenomena> WeatherGroup::parseWeatherWithoutEvent(
+    const std::string & group,
     ReportPart reportPart)
 {
-    optional<WeatherPhenomena> notRecognised;
+    std::optional<WeatherPhenomena> notRecognised;
     if (reportPart != ReportPart::METAR && reportPart != ReportPart::TAF) return notRecognised;
     // Not reported weather or recent weather is only allowed in METAR
     if (reportPart == ReportPart::METAR) {
@@ -5223,10 +5223,10 @@ optional<WeatherPhenomena> WeatherGroup::parseWeatherWithoutEvent(
     return wp;
 }
 
-optional<WeatherGroup> WeatherGroup::parseWeatherEvent(const string & group,
+std::optional<WeatherGroup> WeatherGroup::parseWeatherEvent(const std::string & group,
     const MetafTime & reportTime)
 {
-    optional<WeatherGroup> notRecognised;
+    std::optional<WeatherGroup> notRecognised;
     int eventStartPos = 0;
     bool lastDigit = false;
     WeatherPhenomena previousWeather;
@@ -5240,7 +5240,7 @@ optional<WeatherGroup> WeatherGroup::parseWeatherEvent(const string & group,
             // i is the position after the last digit from eventStartPos
             const auto eventLen = i - eventStartPos;
             if (const auto minEventLen = 3; eventLen < minEventLen) return notRecognised;
-            const string s = group.substr(eventStartPos, eventLen);
+            const std::string s = group.substr(eventStartPos, eventLen);
             const auto w =
                 WeatherPhenomena::fromWeatherBeginEndString(s, reportTime, previousWeather);
             if (!w.has_value()) return notRecognised;
@@ -5251,7 +5251,7 @@ optional<WeatherGroup> WeatherGroup::parseWeatherEvent(const string & group,
         lastDigit = currDigit;
     }
     // Last weather event in the string ends with a digit is not be detected in the loop
-    const string s = group.substr(eventStartPos);
+    const std::string s = group.substr(eventStartPos);
     const auto w =
         WeatherPhenomena::fromWeatherBeginEndString(s, reportTime, previousWeather);
     if (!w.has_value()) return notRecognised;
@@ -5282,17 +5282,17 @@ bool TemperatureGroup::isValid() const {
     return (*airTemperature().temperature() >= *dewPoint().temperature());
 }
 
-optional<TemperatureGroup> TemperatureGroup::parse(const string & group,
+std::optional<TemperatureGroup> TemperatureGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    static const optional<TemperatureGroup> notRecognised;
-    static const regex rgx("(M?\\d\\d|//)/(M?\\d\\d|//)?");
+    static const std::optional<TemperatureGroup> notRecognised;
+    static const std::regex rgx("(M?\\d\\d|//)/(M?\\d\\d|//)?");
     static const auto matchTemperature = 1, matchDewPoint = 2;
-    static const regex rmkRgx("T([01]\\d\\d\\d)([01]\\d\\d\\d)?");
+    static const std::regex rmkRgx("T([01]\\d\\d\\d)([01]\\d\\d\\d)?");
     static const auto rmkMatchTemperature = 1, rmkMatchDewPoint = 2;
-    smatch match;
+    std::smatch match;
     if (reportPart == ReportPart::METAR) {
         if (regex_match(group, match, rgx)) {
             const auto t = Temperature::fromString(match.str(matchTemperature));
@@ -5326,7 +5326,7 @@ optional<TemperatureGroup> TemperatureGroup::parse(const string & group,
     return notRecognised;
 }
 
-AppendResult TemperatureGroup::append(const string & group,
+AppendResult TemperatureGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -5341,12 +5341,12 @@ AppendResult TemperatureGroup::append(const string & group,
 
 ///////////////////////////////////////////////////////////////////////////
 
-optional<PressureGroup> PressureGroup::parse(const string & group,
+std::optional<PressureGroup> PressureGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    static const optional<PressureGroup> notRecognised;
+    static const std::optional<PressureGroup> notRecognised;
     if (reportPart == ReportPart::METAR || reportPart == ReportPart::RMK) {
         const auto pressure = Pressure::fromString(group);
         if (pressure.has_value()) {
@@ -5385,7 +5385,7 @@ optional<PressureGroup> PressureGroup::parse(const string & group,
     return notRecognised;
 }
 
-AppendResult PressureGroup::append(const string & group,
+AppendResult PressureGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -5400,22 +5400,22 @@ AppendResult PressureGroup::append(const string & group,
 
 ///////////////////////////////////////////////////////////////////////////
 
-optional<RunwayStateGroup> RunwayStateGroup::parse(const string & group,
+std::optional<RunwayStateGroup> RunwayStateGroup::parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    static const optional<RunwayStateGroup> notRecognised;
+    static const std::optional<RunwayStateGroup> notRecognised;
     RunwayStateGroup result;
     if (reportPart != ReportPart::METAR) return notRecognised;
     if (group == "SNOCLO" || group == "R/SNOCLO")
         return RunwayStateGroup(Type::AERODROME_SNOCLO, Runway::makeAllRunways());
-    static const regex rgx("(R\\d\\d[RCL]?)/"
+    static const std::regex rgx("(R\\d\\d[RCL]?)/"
         "(?:(SNOCLO)|(?:([0-9/])([0-9/])(\\d\\d|//)|(CLRD))(\\d\\d|//))");
     static const auto matchRunway = 1, matchSnoclo = 2, matchDeposits = 3;
     static const auto matchExtent = 4, matchDepth = 5, matchClrd = 6, matchFriction = 7;
-    static const string depthRunwayNotOperational = "99";
-    smatch match;
+    static const std::string depthRunwayNotOperational = "99";
+    std::smatch match;
     if (!regex_match(group, match, rgx)) return notRecognised;
     const auto runway = Runway::fromString(match.str(matchRunway));
     if (!runway.has_value()) return notRecognised;
@@ -5443,7 +5443,7 @@ optional<RunwayStateGroup> RunwayStateGroup::parse(const string & group,
     return result;
 }
 
-AppendResult RunwayStateGroup::append(const string & group,
+AppendResult RunwayStateGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -5451,10 +5451,10 @@ AppendResult RunwayStateGroup::append(const string & group,
     return AppendResult::NOT_APPENDED;
 }
 
-optional<RunwayStateGroup::Deposits> RunwayStateGroup::depositsFromString(
-    const string & s)
+std::optional<RunwayStateGroup::Deposits> RunwayStateGroup::depositsFromString(
+    const std::string & s)
 {
-    optional<Deposits> error;
+    std::optional<Deposits> error;
     if (s.length() != 1) return error;
     switch (s[0]) {
         case '0': return Deposits::CLEAR_AND_DRY;
@@ -5472,10 +5472,10 @@ optional<RunwayStateGroup::Deposits> RunwayStateGroup::depositsFromString(
     }
 }
 
-optional<RunwayStateGroup::Extent> RunwayStateGroup::extentFromString(
-    const string & s)
+std::optional<RunwayStateGroup::Extent> RunwayStateGroup::extentFromString(
+    const std::string & s)
 {
-    optional<Extent> error;
+    std::optional<Extent> error;
     if (s.length() != 1) return error;
     switch (s[0]) {
         case '0': return Extent::NONE;
@@ -5495,17 +5495,17 @@ optional<RunwayStateGroup::Extent> RunwayStateGroup::extentFromString(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<SeaSurfaceGroup> SeaSurfaceGroup::parse(const string & group,
+std::optional<SeaSurfaceGroup> SeaSurfaceGroup::parse(const std::string & group,
         ReportPart reportPart,
         const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    static const optional<SeaSurfaceGroup> notRecognised;
+    static const std::optional<SeaSurfaceGroup> notRecognised;
     if (reportPart != ReportPart::METAR) return notRecognised;
-    static const regex rgx ("W(\\d\\d|//)/([HS](?:\\d\\d?\\d?|///|/))");
+    static const std::regex rgx ("W(\\d\\d|//)/([HS](?:\\d\\d?\\d?|///|/))");
     static const auto matchTemp = 1, matchWaveHeight = 2;
-    smatch match;
-    if (!regex_match(group, match, rgx)) return notRecognised;
+    std::smatch match;
+    if (!std::regex_match(group, match, rgx)) return notRecognised;
     const auto temp = Temperature::fromString(match.str(matchTemp));
     if (!temp.has_value()) return notRecognised;
     const auto waveHeight = WaveHeight::fromString(match.str(matchWaveHeight));
@@ -5516,7 +5516,7 @@ optional<SeaSurfaceGroup> SeaSurfaceGroup::parse(const string & group,
     return result;
 }
 
-AppendResult SeaSurfaceGroup::append(const string & group,
+AppendResult SeaSurfaceGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -5526,8 +5526,8 @@ AppendResult SeaSurfaceGroup::append(const string & group,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::parse(
-    const string & group,
+std::optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::parse(
+    const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -5537,10 +5537,10 @@ optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::parse(
         if (const auto h6 = from6hourly(group); h6.has_value()) return h6;
         if (const auto h24 = from24hourly(group); h24.has_value()) return h24;
     }
-    return optional<MinMaxTemperatureGroup>();
+    return std::optional<MinMaxTemperatureGroup>();
 }
 
-AppendResult MinMaxTemperatureGroup::append(const string & group,
+AppendResult MinMaxTemperatureGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -5552,14 +5552,14 @@ AppendResult MinMaxTemperatureGroup::append(const string & group,
     }
 }
 
-optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::from6hourly(
-    const string & group)
+std::optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::from6hourly(
+    const std::string & group)
 {
-    optional<MinMaxTemperatureGroup> notRecognised;
-    static const regex rgx("([12])([01]\\d\\d\\d|////)");
+    std::optional<MinMaxTemperatureGroup> notRecognised;
+    static const std::regex rgx("([12])([01]\\d\\d\\d|////)");
     static const auto matchType = 1, matchValue = 2;
-    smatch match;
-    if (!regex_match(group, match, rgx)) return notRecognised;
+    std::smatch match;
+    if (!std::regex_match(group, match, rgx)) return notRecognised;
     MinMaxTemperatureGroup result;
     result.t = Type::OBSERVED_6_HOURLY;
     if (match.str(matchValue) == "////") return result;
@@ -5571,14 +5571,14 @@ optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::from6hourly(
     return result;
 }
 
-optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::from24hourly(
-    const string & group)
+std::optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::from24hourly(
+    const std::string & group)
 {
-    optional<MinMaxTemperatureGroup> notRecognised;
-    static const regex rgx("4([01]\\d\\d\\d)([01]\\d\\d\\d)");
+    std::optional<MinMaxTemperatureGroup> notRecognised;
+    static const std::regex rgx("4([01]\\d\\d\\d)([01]\\d\\d\\d)");
     static const auto matchMax = 1, matchMin = 2;
-    smatch match;
-    if (!regex_match(group, match, rgx)) return notRecognised;
+    std::smatch match;
+    if (!std::regex_match(group, match, rgx)) return notRecognised;
     const auto max = Temperature::fromRemarkString(match.str(matchMax));
     if (!max.has_value()) return notRecognised;
     const auto min = Temperature::fromRemarkString(match.str(matchMin));
@@ -5590,14 +5590,14 @@ optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::from24hourly(
     return result;
 }
 
-optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::fromForecast(
-    const string & group)
+std::optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::fromForecast(
+    const std::string & group)
 {
-    static const optional<MinMaxTemperatureGroup> notRecognised;
-    static const regex rgx ("T([XN])?(M?\\d\\d)/(\\d\\d\\d\\d)Z");
+    static const std::optional<MinMaxTemperatureGroup> notRecognised;
+    static const std::regex rgx ("T([XN])?(M?\\d\\d)/(\\d\\d\\d\\d)Z");
     static const auto matchPoint = 1, matchTemperature = 2, matchTime = 3;
-    smatch match;
-    if (!regex_match(group, match, rgx)) return notRecognised;
+    std::smatch match;
+    if (!std::regex_match(group, match, rgx)) return notRecognised;
     auto temp = Temperature::fromString(match.str(matchTemperature));
     if (!temp.has_value()) return notRecognised;
     auto time = MetafTime::fromStringDDHH(match.str(matchTime));
@@ -5622,7 +5622,7 @@ optional<MinMaxTemperatureGroup> MinMaxTemperatureGroup::fromForecast(
     return result;
 }
 
-AppendResult MinMaxTemperatureGroup::append6hourly(const string & group) {
+AppendResult MinMaxTemperatureGroup::append6hourly(const std::string & group) {
     static const auto error = AppendResult::NOT_APPENDED;
     if (minTemp.isReported() && maxTemp.isReported()) return error;
     const auto nextGroup = from6hourly(group);
@@ -5634,7 +5634,7 @@ AppendResult MinMaxTemperatureGroup::append6hourly(const string & group) {
     return AppendResult::APPENDED;
 }
 
-AppendResult MinMaxTemperatureGroup::appendForecast(const string & group) {
+AppendResult MinMaxTemperatureGroup::appendForecast(const std::string & group) {
     static const auto error = AppendResult::NOT_APPENDED;
     if (minTemp.isReported() && maxTemp.isReported() && !isIncomplete) return error;
     const auto nextGroup = fromForecast(group);
@@ -5661,8 +5661,8 @@ AppendResult MinMaxTemperatureGroup::appendForecast(const string & group) {
         if ((!minTemp.isFreezing() && maxTemp.isFreezing()) ||
             *minTemp.temperature() > *maxTemp.temperature())
         {
-            swap(minTemp, maxTemp);
-            swap(minTime, maxTime);
+            std::swap(minTemp, maxTemp);
+            std::swap(minTime, maxTime);
         }
         isIncomplete = false;
     }
@@ -5682,25 +5682,25 @@ bool MinMaxTemperatureGroup::isValid() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<PrecipitationGroup> PrecipitationGroup::parse(const string & group,
+std::optional<PrecipitationGroup> PrecipitationGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
-    optional<PrecipitationGroup> notRecognised;
-    static const regex rgx(
+    std::optional<PrecipitationGroup> notRecognised;
+    static const std::regex rgx(
         "([P67])(\\d\\d\\d\\d|////)|(4/|93[13]|I[136]|PP)(\\d\\d\\d|///)");
     static const auto matchType1 = 1, matchType2 = 3;
     static const auto matchValue1 = 2, matchValue2 = 4;
 
-    static const regex rfRgx (
+    static const std::regex rfRgx (
         "RF(\\d\\d\\.\\d|//\\./)/(\\d\\d\\d\\.\\d|///\\./)");
     static const auto rfMatchLast10Minutes = 1, rfMatchSince9AM = 2;
 
-    smatch match;
+    std::smatch match;
     PrecipitationGroup result;
 
     if (reportPart == ReportPart::METAR) {
-        if (!regex_match(group, match, rfRgx)) return notRecognised;
+        if (!std::regex_match(group, match, rfRgx)) return notRecognised;
         const auto last10min =
             Precipitation::fromRainfallString(match.str(rfMatchLast10Minutes));
         if (!last10min.has_value()) return notRecognised;
@@ -5721,11 +5721,11 @@ optional<PrecipitationGroup> PrecipitationGroup::parse(const string & group,
     if (group == "PCPN") return PrecipitationGroup(Type::PCPN_MISG, true);
     if (group == "SNINCR") return PrecipitationGroup(Type::SNOW_INCREASING_RAPIDLY);
 
-    if (!regex_match(group, match, rgx)) return notRecognised;
+    if (!std::regex_match(group, match, rgx)) return notRecognised;
 
     // assuming only one pair matchType and matchValue will be non-empty
-    string typeStr = match.str(matchType1) + match.str(matchType2);
-    string valueStr = match.str(matchValue1) + match.str(matchValue2);
+    std::string typeStr = match.str(matchType1) + match.str(matchType2);
+    std::string valueStr = match.str(matchValue1) + match.str(matchValue2);
 
     const bool is3hourly =
         reportMetadata.reportTime.has_value() ?
@@ -5761,7 +5761,7 @@ optional<PrecipitationGroup> PrecipitationGroup::parse(const string & group,
     return result;
 }
 
-AppendResult PrecipitationGroup::append(const string & group,
+AppendResult PrecipitationGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -5777,8 +5777,8 @@ AppendResult PrecipitationGroup::append(const string & group,
         return AppendResult::NOT_APPENDED;
     const auto precip = Precipitation::fromSnincrString(group);
     if (!precip.has_value()) return AppendResult::NOT_APPENDED;
-    precChange = get<0>(*precip);
-    precAmount = get<1>(*precip);
+    precChange = std::get<0>(*precip);
+    precAmount = std::get<1>(*precip);
     return AppendResult::APPENDED;
 }
 
@@ -5816,8 +5816,8 @@ float PrecipitationGroup::factorFromType(Type type) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<LayerForecastGroup::Type> LayerForecastGroup::typeFromStr(
-    const string & s)
+std::optional<LayerForecastGroup::Type> LayerForecastGroup::typeFromStr(
+    const std::string & s)
 {
     if (s == "60") return Type::ICING_TRACE_OR_NONE;
     if (s == "61") return Type::ICING_LIGHT_MIXED;
@@ -5840,22 +5840,22 @@ optional<LayerForecastGroup::Type> LayerForecastGroup::typeFromStr(
     if (s == "58") return Type::TURBULENCE_SEVERE_IN_CLOUD_OCCASIONAL;
     if (s == "59") return Type::TURBULENCE_SEVERE_IN_CLOUD_FREQUENT;
     if (s == "5X") return Type::TURBULENCE_EXTREME;
-    return optional<Type>();
+    return std::optional<Type>();
 }
 
-optional<LayerForecastGroup> LayerForecastGroup::parse(
-    const string & group,
+std::optional<LayerForecastGroup> LayerForecastGroup::parse(
+    const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    optional<LayerForecastGroup> notRecognised;
-    static const regex rgx("([65][\\dX])(\\d\\d\\d\\d)");
+    std::optional<LayerForecastGroup> notRecognised;
+    static const std::regex rgx("([65][\\dX])(\\d\\d\\d\\d)");
     static const auto matchType = 1, matchHeight = 2;
 
     if (reportPart != ReportPart::TAF) return notRecognised;
-    smatch match;
-    if (!regex_match(group, match, rgx)) return notRecognised;
+    std::smatch match;
+    if (!std::regex_match(group, match, rgx)) return notRecognised;
     const auto type = typeFromStr(match.str(matchType));
     if (!type.has_value()) return notRecognised;
     const auto heights = Distance::fromLayerString(match.str(matchHeight));
@@ -5863,12 +5863,12 @@ optional<LayerForecastGroup> LayerForecastGroup::parse(
 
     LayerForecastGroup result;
     result.layerType = *type;
-    result.layerBaseHeight = get<0>(*heights);
-    result.layerTopHeight = get<1>(*heights);
+    result.layerBaseHeight = std::get<0>(*heights);
+    result.layerTopHeight = std::get<1>(*heights);
     return result;
 }
 
-AppendResult LayerForecastGroup::append(const string & group,
+AppendResult LayerForecastGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -5906,7 +5906,7 @@ PressureTendencyGroup::Trend PressureTendencyGroup::trend(Type type) {
     }
 }
 
-optional<PressureTendencyGroup::Type> PressureTendencyGroup::typeFromChar(
+std::optional<PressureTendencyGroup::Type> PressureTendencyGroup::typeFromChar(
     char type)
 {
     switch (type) {
@@ -5920,17 +5920,17 @@ optional<PressureTendencyGroup::Type> PressureTendencyGroup::typeFromChar(
         case '7': return Type::DECREASING;
         case '8': return Type::DECREASING_MORE_RAPIDLY;
         case '/': return Type::NOT_REPORTED;
-        default: return optional<Type>();
+        default: return std::optional<Type>();
     }
 }
 
-optional<PressureTendencyGroup> PressureTendencyGroup::parse(
-    const string & group,
+std::optional<PressureTendencyGroup> PressureTendencyGroup::parse(
+    const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    optional<PressureTendencyGroup> notRecognised;
+    std::optional<PressureTendencyGroup> notRecognised;
 
     if (reportPart != ReportPart::RMK) return notRecognised;
 
@@ -5945,11 +5945,11 @@ optional<PressureTendencyGroup> PressureTendencyGroup::parse(
         return result;
     }
 
-    static const regex rgx("5([\\d/])(\\d\\d\\d|///)");
+    static const std::regex rgx("5([\\d/])(\\d\\d\\d|///)");
     static const auto matchType = 1, matchPressure = 2;
 
-    smatch match;
-    if (!regex_match(group, match, rgx)) return notRecognised;
+    std::smatch match;
+    if (!std::regex_match(group, match, rgx)) return notRecognised;
     const auto type = typeFromChar(match.str(matchType)[0]);
     if (!type.has_value()) return notRecognised;
     const auto pressure = Pressure::fromTendencyString(match.str(matchPressure));
@@ -5961,7 +5961,7 @@ optional<PressureTendencyGroup> PressureTendencyGroup::parse(
     return result;
 }
 
-AppendResult PressureTendencyGroup::append(const string & group,
+AppendResult PressureTendencyGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -5971,25 +5971,25 @@ AppendResult PressureTendencyGroup::append(const string & group,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-vector<CloudType> CloudTypesGroup::cloudTypes() const {
-    vector<CloudType> result;
+std::vector<CloudType> CloudTypesGroup::cloudTypes() const {
+    std::vector<CloudType> result;
     for (auto i=0u; i < cldTpSize; i++)
         result.push_back(cldTp[i]);
     return result;
 }
 
-optional<CloudTypesGroup> CloudTypesGroup::parse(const string & group,
+std::optional<CloudTypesGroup> CloudTypesGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    optional<CloudTypesGroup> notRecognised;
+    std::optional<CloudTypesGroup> notRecognised;
     //"(CB|TCU|CU|CF|SC|NS|ST|SF|AS|AC|ACC|CI|CS|CC|BLSN|BLDU|BLSA|IC|)(\\d)"
-    static const regex matchRgx("(?:(?:[A-Z]{2,4})[\\d])+");
-    static const regex searchRgx("[A-Z]{2,4}[\\d]");
+    static const std::regex matchRgx("(?:(?:[A-Z]{2,4})[\\d])+");
+    static const std::regex searchRgx("[A-Z]{2,4}[\\d]");
 
     if (reportPart != ReportPart::RMK) return notRecognised;
-    smatch match;
+    std::smatch match;
     CloudTypesGroup result;
 
     if (const auto ctp = CloudType::fromString(group); ctp.has_value()) {
@@ -5997,9 +5997,9 @@ optional<CloudTypesGroup> CloudTypesGroup::parse(const string & group,
         result.cldTpSize = 1;
         return result;
     }
-    if (!regex_match(group, match, matchRgx)) return notRecognised;
-    auto iter = sregex_iterator(group.begin(), group.end(), searchRgx);
-    while (iter != sregex_iterator()) {
+    if (!std::regex_match(group, match, matchRgx)) return notRecognised;
+    auto iter = std::sregex_iterator(group.begin(), group.end(), searchRgx);
+    while (iter != std::sregex_iterator()) {
         if (result.cldTpSize >= result.cldTpMaxSize) return result;
         match = *iter++;
         const auto ctp = CloudType::fromString(match.str(0));
@@ -6009,7 +6009,7 @@ optional<CloudTypesGroup> CloudTypesGroup::parse(const string & group,
     return result;
 }
 
-AppendResult CloudTypesGroup::append(const string & group,
+AppendResult CloudTypesGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -6040,18 +6040,18 @@ bool LowMidHighCloudGroup::isValid() const {
 }
 
 
-optional<LowMidHighCloudGroup> LowMidHighCloudGroup::parse(const string & group,
+std::optional<LowMidHighCloudGroup> LowMidHighCloudGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    optional<LowMidHighCloudGroup> notRecognised;
-    static const regex rgx("8/([0-9/])([0-9/])([0-9/])");
+    std::optional<LowMidHighCloudGroup> notRecognised;
+    static const std::regex rgx("8/([0-9/])([0-9/])([0-9/])");
     static const auto matchLowLayer = 1, matchMidLayer = 2, matchHighLayer = 3;
 
     if (reportPart != ReportPart::RMK) return notRecognised;
-    smatch match;
-    if (!regex_match(group, match, rgx)) return notRecognised;
+    std::smatch match;
+    if (!std::regex_match(group, match, rgx)) return notRecognised;
 
     const auto lowLayer = lowLayerFromChar(match.str(matchLowLayer)[0]);
     const auto midLayer = midLayerFromChar(match.str(matchMidLayer)[0]);
@@ -6063,7 +6063,7 @@ optional<LowMidHighCloudGroup> LowMidHighCloudGroup::parse(const string & group,
     return result;
 }
 
-AppendResult LowMidHighCloudGroup::append(const string & group,
+AppendResult LowMidHighCloudGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -6121,20 +6121,20 @@ LowMidHighCloudGroup::HighLayer LowMidHighCloudGroup::highLayerFromChar(char c) 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<LightningGroup> LightningGroup::parse(
-    const string & group,
+std::optional<LightningGroup> LightningGroup::parse(
+    const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
     (void) reportMetadata;
-    if (reportPart != ReportPart::RMK) return optional<LightningGroup>();
+    if (reportPart != ReportPart::RMK) return std::optional<LightningGroup>();
     if (group == "OCNL") return LightningGroup(Frequency::OCCASIONAL);
     if (group == "FRQ") return LightningGroup(Frequency::FREQUENT);
     if (group == "CONS") return LightningGroup(Frequency::CONSTANT);
     return fromLtgGroup(group);
 }
 
-AppendResult LightningGroup::append(const string & group,
+AppendResult LightningGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -6144,7 +6144,7 @@ AppendResult LightningGroup::append(const string & group,
         if (const auto ltg = fromLtgGroup(group); ltg.has_value())
         {
             Frequency f = freq;
-            *this = move(*ltg);
+            *this = std::move(*ltg);
             freq = f;
             return AppendResult::APPENDED;
         }
@@ -6163,8 +6163,8 @@ AppendResult LightningGroup::append(const string & group,
         if (const auto dirSec = Direction::fromSectorString(group); dirSec.has_value())
         {
             //Direction sector is specified
-            dir2from = get<0>(*dirSec);
-            dir2to = get<1>(*dirSec);
+            dir2from = std::get<0>(*dirSec);
+            dir2to = std::get<1>(*dirSec);
             return AppendResult::APPENDED;
         }
     return AppendResult::NOT_APPENDED;
@@ -6180,15 +6180,15 @@ AppendResult LightningGroup::append(const string & group,
     }
     if (const auto dirSec = Direction::fromSectorString(group); dirSec.has_value())
     {
-        dir1from = get<0>(*dirSec);
-        dir1to = get<1>(*dirSec);
+        dir1from = std::get<0>(*dirSec);
+        dir1to = std::get<1>(*dirSec);
         return AppendResult::APPENDED;
     }
     return AppendResult::NOT_APPENDED;
 }
 
-optional<LightningGroup> LightningGroup::fromLtgGroup(const string & group) {
-    optional<LightningGroup> notRecognised;
+std::optional<LightningGroup> LightningGroup::fromLtgGroup(const std::string & group) {
+    std::optional<LightningGroup> notRecognised;
     static const auto ltgLen = 3u; // length of string LTG
     static const char ltg[ltgLen + 1] = "LTG";
 
@@ -6216,9 +6216,9 @@ optional<LightningGroup> LightningGroup::fromLtgGroup(const string & group) {
     return result;
 }
 
-vector<Direction> LightningGroup::directions() const {
+std::vector<Direction> LightningGroup::directions() const {
     // The result vector is max 10 elements possible, typically up to
-    // 5 elements which does not justify using set and find
+    // 5 elements which does not justify using std::set and std::find
     auto result = Direction::sectorCardinalDirToVector(
         dir1from.value_or(Direction()),
         dir1to.value_or(Direction()));
@@ -6237,13 +6237,13 @@ vector<Direction> LightningGroup::directions() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<VicinityGroup> VicinityGroup::parse(
-    const string & group,
+std::optional<VicinityGroup> VicinityGroup::parse(
+    const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
     (void) reportMetadata;
-    optional<VicinityGroup> notRecognised;
+    std::optional<VicinityGroup> notRecognised;
     if (reportPart != ReportPart::RMK) return notRecognised;
     if (group == "TS") return VicinityGroup(Type::THUNDERSTORM);
     if (group == "CB") return VicinityGroup(Type::CUMULONIMBUS);
@@ -6267,7 +6267,7 @@ optional<VicinityGroup> VicinityGroup::parse(
     return notRecognised;
 }
 
-AppendResult VicinityGroup::append(const string & group,
+AppendResult VicinityGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -6315,7 +6315,7 @@ AppendResult VicinityGroup::append(const string & group,
     }
 }
 
-bool VicinityGroup::appendDir1(const string & str) {
+bool VicinityGroup::appendDir1(const std::string & str) {
     if (const auto dir = Direction::fromCardinalString(str, true); dir.has_value()) {
         //Single direction is specified
         dir1from = *dir;
@@ -6323,14 +6323,14 @@ bool VicinityGroup::appendDir1(const string & str) {
     }
     if (const auto dirSec = Direction::fromSectorString(str); dirSec.has_value())
     {
-        dir1from = get<0>(*dirSec);
-        dir1to = get<1>(*dirSec);
+        dir1from = std::get<0>(*dirSec);
+        dir1to = std::get<1>(*dirSec);
         return true;
     }
     return false;
 }
 
-bool VicinityGroup::appendDir2(const string & str) {
+bool VicinityGroup::appendDir2(const std::string & str) {
     if (const auto dir = Direction::fromCardinalString(str, true); dir.has_value()) {
         //Single direction is specified
         dir2from = *dir;
@@ -6338,14 +6338,14 @@ bool VicinityGroup::appendDir2(const string & str) {
     }
     if (const auto dirSec = Direction::fromSectorString(str); dirSec.has_value())
     {
-        dir2from = get<0>(*dirSec);
-        dir2to = get<1>(*dirSec);
+        dir2from = std::get<0>(*dirSec);
+        dir2to = std::get<1>(*dirSec);
         return true;
     }
     return false;
 }
 
-bool VicinityGroup::appendDistance(const string & str) {
+bool VicinityGroup::appendDistance(const std::string & str) {
     if (str == "DSNT") { dist = Distance::makeDistant(); return true; }
     if (str == "VC") { dist = Distance::makeVicinity(); return true; }
     const auto d = Distance::fromKmString(str);
@@ -6354,7 +6354,7 @@ bool VicinityGroup::appendDistance(const string & str) {
     return true;
 }
 
-vector<Direction> VicinityGroup::directions() const {
+std::vector<Direction> VicinityGroup::directions() const {
     // Copy of LightningGroup::directions
     auto result = Direction::sectorCardinalDirToVector(
         dir1from.value_or(Direction()),
@@ -6374,16 +6374,16 @@ vector<Direction> VicinityGroup::directions() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-optional<MiscGroup> MiscGroup::parse(const string & group,
+std::optional<MiscGroup> MiscGroup::parse(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
     (void)reportMetadata;
-    static const regex rgxSunshineDuration("98(\\d\\d\\d)");
-    static const regex rgxCorrectionObservation("CC([A-Z])");
+    static const std::regex rgxSunshineDuration("98(\\d\\d\\d)");
+    static const std::regex rgxCorrectionObservation("CC([A-Z])");
     static const auto matchValue = 1;
 
-    smatch match;
+    std::smatch match;
     MiscGroup result;
 
     if (reportPart == ReportPart::METAR) {
@@ -6392,7 +6392,7 @@ optional<MiscGroup> MiscGroup::parse(const string & group,
             return result;
         }
 
-        if (regex_match(group, match, rgxCorrectionObservation)) {
+        if (std::regex_match(group, match, rgxCorrectionObservation)) {
             result.groupType = Type::CORRECTED_WEATHER_OBSERVATION;
             result.groupData = match.str(matchValue)[0] - 'A' + 1;
             return result;
@@ -6410,9 +6410,9 @@ optional<MiscGroup> MiscGroup::parse(const string & group,
             result.incompleteText = IncompleteText::DENSITY;
             return result;
         }
-        if (regex_match(group, match, rgxSunshineDuration)) {
+        if (std::regex_match(group, match, rgxSunshineDuration)) {
             result.groupType = Type::SUNSHINE_DURATION_MINUTES;
-            result.groupData = stoi(match.str(matchValue));
+            result.groupData = std::stoi(match.str(matchValue));
             return result;
         }
         if (group == "FROIN") {
@@ -6421,10 +6421,10 @@ optional<MiscGroup> MiscGroup::parse(const string & group,
         }
     }
 
-    return optional<MiscGroup>();
+    return std::optional<MiscGroup>();
 }
 
-AppendResult MiscGroup::append(const string & group,
+AppendResult MiscGroup::append(const std::string & group,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata)
 {
@@ -6464,7 +6464,7 @@ AppendResult MiscGroup::append(const string & group,
     }
 }
 
-optional<MiscGroup::Type> MiscGroup::parseColourCode(const string & group) {
+std::optional<MiscGroup::Type> MiscGroup::parseColourCode(const std::string & group) {
     if (group == "BLU") return Type::COLOUR_CODE_BLUE;
     if (group == "WHT") return Type::COLOUR_CODE_WHITE;
     if (group == "GRN") return Type::COLOUR_CODE_GREEN;
@@ -6479,10 +6479,10 @@ optional<MiscGroup::Type> MiscGroup::parseColourCode(const string & group) {
     if (group == "BLACKYLO2") return Type::COLOUR_CODE_BLACKYELLOW2;
     if (group == "BLACKAMB") return Type::COLOUR_CODE_BLACKAMBER;
     if (group == "BLACKRED") return Type::COLOUR_CODE_BLACKRED;
-    return optional<Type>();
+    return std::optional<Type>();
 }
 
-bool MiscGroup::appendHailstoneFraction(const string & group) {
+bool MiscGroup::appendHailstoneFraction(const std::string & group) {
     // Fraction specified with increment of 1/4
     bool appended = false;
     auto value = groupData.value_or(0.0);
@@ -6495,8 +6495,8 @@ bool MiscGroup::appendHailstoneFraction(const string & group) {
     return true;
 }
 
-bool MiscGroup::appendDensityAltitude(const string & group) {
-    static const string unitStr ("FT");
+bool MiscGroup::appendDensityAltitude(const std::string & group) {
+    static const std::string unitStr ("FT");
     static const auto unitLen = unitStr.length();
     if (group.length() < unitLen + 1) return false; //require at least 1 digit and FT
     const auto groupUnitStr = group.substr(group.length() - unitLen);
@@ -6515,7 +6515,7 @@ bool MiscGroup::isValid() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 SyntaxGroup getSyntaxGroup(const Group & group) {
-    if (auto keywordGroup = get_if<KeywordGroup>(&group)) {
+    if (auto keywordGroup = std::get_if<KeywordGroup>(&group)) {
         switch (keywordGroup->type()) {
             case KeywordGroup::Type::METAR:	return SyntaxGroup::METAR;
             case KeywordGroup::Type::SPECI:	return SyntaxGroup::SPECI;
@@ -6532,9 +6532,9 @@ SyntaxGroup getSyntaxGroup(const Group & group) {
             default:						return SyntaxGroup::OTHER;
         }
     }
-    if (get_if<LocationGroup>(&group)) return SyntaxGroup::LOCATION;
-    if (get_if<ReportTimeGroup>(&group)) return SyntaxGroup::REPORT_TIME;
-    if (auto trendGroup = get_if<TrendGroup>(&group)) {
+    if (std::get_if<LocationGroup>(&group)) return SyntaxGroup::LOCATION;
+    if (std::get_if<ReportTimeGroup>(&group)) return SyntaxGroup::REPORT_TIME;
+    if (auto trendGroup = std::get_if<TrendGroup>(&group)) {
         if (trendGroup->isTimeSpanGroup()) return SyntaxGroup::TIME_SPAN;
         return SyntaxGroup::OTHER;
     }
@@ -6543,7 +6543,7 @@ SyntaxGroup getSyntaxGroup(const Group & group) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ParseResult Parser::parse(const string & report, size_t groupLimit) {
+ParseResult Parser::parse(const std::string & report, size_t groupLimit) {
     ReportInput in(report);
 
     bool reportEnd = false;
@@ -6553,7 +6553,7 @@ ParseResult Parser::parse(const string & report, size_t groupLimit) {
     size_t groupCount = 0;
 
     //Iterate through report groups separated by delimiters
-    string groupStr;
+    std::string groupStr;
     in >> groupStr;
     while (!groupStr.empty() && !reportEnd && !status.isError()) {
 
@@ -6572,7 +6572,7 @@ ParseResult Parser::parse(const string & report, size_t groupLimit) {
                 if (groupCount >= groupLimit) status.setError(ReportError::REPORT_TOO_LARGE);
             } while(status.isReparseRequired()  && !status.isError());
             updateMetadata(group, reportMetadata);
-            addGroupToResult(result, move(group), reportPart, move(groupStr));
+            addGroupToResult(result, std::move(group), reportPart, std::move(groupStr));
         } else {
             // Raw string was appended to the group, just increase group count
             groupCount++;
@@ -6590,12 +6590,12 @@ ParseResult Parser::parse(const string & report, size_t groupLimit) {
     status.finalTransition();
     reportMetadata.type = status.getReportType();
     reportMetadata.error = status.getError();
-    result.reportMetadata = move(reportMetadata);
+    result.reportMetadata = std::move(reportMetadata);
     return result;
 }
 
 bool Parser::appendToLastResultGroup(ParseResult & result,
-    const string & groupStr,
+    const std::string & groupStr,
     ReportPart reportPart,
     const ReportMetadata & reportMetadata,
     bool allowReparse)
@@ -6606,12 +6606,12 @@ bool Parser::appendToLastResultGroup(ParseResult & result,
     // Do not append last group in result is fallback (unknown) group
     // Fallback group is for case 'when everything else fails' and must be
     // used only if all parse attempts by other groups failed
-    if (holds_alternative<FallbackGroup>(result.groups.back().group)) return false;
+    if (std::holds_alternative<FallbackGroup>(result.groups.back().group)) return false;
 
     GroupInfo & lastGroupInfo = result.groups.back();
     Group & lastGroup = lastGroupInfo.group;
 
-    const auto appendResult = visit(
+    const auto appendResult = std::visit(
         [&](auto && gr) -> AppendResult {
             return gr.append(groupStr, reportPart, reportMetadata);
         }, lastGroup);
@@ -6627,19 +6627,19 @@ bool Parser::appendToLastResultGroup(ParseResult & result,
 
         case AppendResult::GROUP_INVALIDATED:
         {
-            string prevStr = move(result.groups.back().rawString);
+            std::string prevStr = std::move(result.groups.back().rawString);
             const auto prevRp = result.groups.back().reportPart;
             const auto & prevGroup = result.groups.back().group;
             if (!allowReparse) {
-                addGroupToResult(result, FallbackGroup(), prevRp, move(prevStr));
+                addGroupToResult(result, FallbackGroup(), prevRp, std::move(prevStr));
                 return false;
             }
             const auto reparsed =
                 GroupParser::reparse(prevStr, prevRp, reportMetadata, prevGroup);
             const bool reparsedIsOtherGroup =
-                !holds_alternative<FallbackGroup>(reparsed);
+                !std::holds_alternative<FallbackGroup>(reparsed);
             result.groups.pop_back();
-            addGroupToResult(result, move(reparsed), prevRp, move(prevStr));
+            addGroupToResult(result, std::move(reparsed), prevRp, std::move(prevStr));
             if (!reparsedIsOtherGroup) return false;
             return appendToLastResultGroup(result, groupStr, reportPart, reportMetadata, false);
         }
@@ -6649,30 +6649,30 @@ bool Parser::appendToLastResultGroup(ParseResult & result,
 void Parser::addGroupToResult(ParseResult & result,
     Group group,
     ReportPart reportPart,
-    string groupString)
+    std::string groupString)
 {
-    if (!result.groups.empty() && holds_alternative<FallbackGroup>(group)) {
+    if (!result.groups.empty() && std::holds_alternative<FallbackGroup>(group)) {
         // Assumed that two fallback groups can always be appended
         GroupInfo & lastGroupInfo = result.groups.back();
-        if (get_if<FallbackGroup>(&lastGroupInfo.group)) {
+        if (std::get_if<FallbackGroup>(&lastGroupInfo.group)) {
             lastGroupInfo.rawString += groupDelimiterChar;
             lastGroupInfo.rawString += groupString;
             return;
         }
     }
-    GroupInfo groupInfo(move(group), reportPart, groupString);
-    result.groups.push_back(move(groupInfo));
+    GroupInfo groupInfo(std::move(group), reportPart, groupString);
+    result.groups.push_back(std::move(groupInfo));
 }
 
 
-string Parser::ReportInput::getNextGroup() {
-    if (finished) return string();
+std::string Parser::ReportInput::getNextGroup() {
+    if (finished) return std::string();
 
     // ASCII control codes and spaces are concidered delimiters
     while (report[pos] <= ' ') {
         if (pos >= report.length()) {
             finished = true;
-            return string();
+            return std::string();
         }
         pos++;
     }
@@ -6983,7 +6983,7 @@ void Parser::Status::finalTransition() {
 }
 
 void Parser::updateMetadata(const Group & group, ReportMetadata & reportMetadata) {
-    if (const auto keyword = get_if<KeywordGroup>(&group); keyword)
+    if (const auto keyword = std::get_if<KeywordGroup>(&group); keyword)
         switch (keyword->type()) {
             case KeywordGroup::Type::SPECI:
             reportMetadata.isSpeci = true;
@@ -7035,19 +7035,19 @@ void Parser::updateMetadata(const Group & group, ReportMetadata & reportMetadata
             default:
             break;
         }
-    if (const auto reportTime = get_if<ReportTimeGroup>(&group); reportTime) {
+    if (const auto reportTime = std::get_if<ReportTimeGroup>(&group); reportTime) {
         reportMetadata.reportTime = reportTime->time();
     }
-    if (const auto location = get_if<LocationGroup>(&group); location)
+    if (const auto location = std::get_if<LocationGroup>(&group); location)
         reportMetadata.icaoLocation = location->toString();
-    if (const auto misc = get_if<MiscGroup>(&group);
+    if (const auto misc = std::get_if<MiscGroup>(&group);
         misc &&
         misc->type() == MiscGroup::Type::CORRECTED_WEATHER_OBSERVATION &&
         misc->data().has_value()) {
             reportMetadata.isCorrectional = true;
             reportMetadata.correctionNumber = *misc->data();
     }
-    if (const auto trend = get_if<TrendGroup>(&group);
+    if (const auto trend = std::get_if<TrendGroup>(&group);
         trend &&
         reportMetadata.type != ReportType::METAR &&
         trend->type() == TrendGroup::Type::TIME_SPAN &&
